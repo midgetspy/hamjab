@@ -15,7 +15,7 @@ class SyncronousWebClient(object):
         responseBody = yield readBody(response)
         returnValue(responseBody)
     
-class AutomationWebClient(SyncronousWebClient):
+class ControlClient(SyncronousWebClient):
     headers = Headers({'User-Agent': ['Client']})
     
     def __init__(self, name):
@@ -30,7 +30,7 @@ class AutomationWebClient(SyncronousWebClient):
         return self._get(url)
 
     
-client = AutomationWebClient('MyClient')
+client = ControlClient('MyClient')
 result = client.executeCommand('myDevice', 'myCommand')
 result.addCallback(lambda x: print_it(x))
 
