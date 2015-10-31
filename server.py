@@ -1,10 +1,10 @@
-from lib import DeviceCommandFactory, CommandServer
+from lib import DeviceServerFactory, CommandServer
 
 from twisted.web import server
 from twisted.internet import reactor, endpoints
 
-# start up the deviceClient server
-factory = DeviceCommandFactory()
+# start up the device server
+factory = DeviceServerFactory()
 endpoints.serverFromString(reactor, "tcp:8007").listen(factory)
 
 # start up the control server
