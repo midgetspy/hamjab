@@ -1,23 +1,34 @@
 import json
-import time
 
 from twisted.web import resource
 from twisted.web.server import NOT_DONE_YET
-from twisted.internet import protocol
+from twisted.internet import protocol, reactor
 from twisted.internet.defer import Deferred, returnValue, inlineCallbacks
 from twisted.internet import error
 
 from twisted.protocols.basic import LineReceiver
+
+def timeoutDeferred(deferred, timeout):
+    delayedCall = reactor.callLater(timeout, deferred.cancel)
+    def gotResult(result):
+        if delayedCall.active():
+            delayedCall.cancel()
+        return result
+    deferred.addBoth(gotResult)
 
 ################################################### common code
 class QueuedLineSender(LineReceiver):
     """
     A class which provides functionality for sending and receiving lines. It expects every line which is sent
     to result in a return line (even if it's empty). It will not send the next line until an answer has been received
-    from the previous one - subsequent commands will be queued and executed once a response is received. 
+    from the previous one - subsequent commands will be queued and executed once a response is received.
+    
+    If no response is received after L{timeout} seconds then a L{timeoutResponse} will automatically be returned.
     """
     delimiter = '\r'
     sendDelimiter = '\r'
+    timeout = 30
+    timeoutResponse = 'TIMEOUT'
 
     def __init__(self):
         self.responseDeferred = None
@@ -25,7 +36,7 @@ class QueuedLineSender(LineReceiver):
     
     def lineReceived(self, line):
         if not self.responseDeferred:
-            print 'no deferred found to use for data receipt'
+            print 'no deferred found to use for data receipt', repr(line)
         else:
             current_deferred = self.responseDeferred
             self.responseDeferred = None
@@ -37,9 +48,20 @@ class QueuedLineSender(LineReceiver):
             
             current_deferred.callback(line)
 
+    def timeoutDeferred(self, deferred):
+        if self.responseDeferred == deferred:
+            self.lineReceived(self.timeoutResponse)
+        else:
+            #TODO: should maybe just be an exception
+            print "a deferred finished that wasn't in the front of the queue... looking for it to remove it to at least try and stay sane"
+            self._requests = [x for x in self._requests if x[1] != deferred]
+
     def sendLine(self, line):
+
+        requestDeferred = Deferred(self.timeoutDeferred)
+        timeoutDeferred(requestDeferred, self.timeout)
+        
         # if we are in the middle of a line then add this one to a queue
-        requestDeferred = Deferred()
         if self.responseDeferred is None:
             self._sendLine(line, requestDeferred)
         else:
@@ -109,6 +131,9 @@ class DeviceServerProtocol(QueuedLineSender):
     A protocol for the server side of the device client communication. It represents a Device Client on the server
     side and is used to send commands to (and return responses from) the device which it represents.
     """
+    
+    timeout = 60
+    
     def __init__(self):
         QueuedLineSender.__init__(self)
         self.deviceId = None
