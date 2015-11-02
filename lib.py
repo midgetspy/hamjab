@@ -1,12 +1,14 @@
-import json
+import json, traceback
 
+from twisted.logger import Logger, ILogObserver, formatEventAsClassicLogText
 from twisted.web import resource
 from twisted.web.server import NOT_DONE_YET
 from twisted.internet import protocol, reactor
 from twisted.internet.defer import Deferred, returnValue, inlineCallbacks
 from twisted.internet import error
-
 from twisted.protocols.basic import LineReceiver
+
+from zope.interface import provider
 
 def timeoutDeferred(deferred, timeout):
     delayedCall = reactor.callLater(timeout, deferred.cancel)
@@ -17,6 +19,13 @@ def timeoutDeferred(deferred, timeout):
     deferred.addBoth(gotResult)
 
 ################################################### common code
+@provider(ILogObserver)
+def printToConsole(event):
+    log = formatEventAsClassicLogText(event)
+    if log == None:
+        print "NO LOG TRACEBACK", traceback.format_stack()
+    print log,
+
 class QueuedLineSender(LineReceiver):
     """
     A class which provides functionality for sending and receiving lines. It expects every line which is sent
@@ -30,13 +39,15 @@ class QueuedLineSender(LineReceiver):
     timeout = 30
     timeoutResponse = 'TIMEOUT'
 
+    log = Logger(observer=printToConsole)
+
     def __init__(self):
         self.responseDeferred = None
         self._requests = []
     
     def lineReceived(self, line):
         if not self.responseDeferred:
-            print 'no deferred found to use for data receipt', repr(line)
+            self.log.debug("No deferred found to use for line {line!r}", line=line)
         else:
             current_deferred = self.responseDeferred
             self.responseDeferred = None
@@ -53,7 +64,7 @@ class QueuedLineSender(LineReceiver):
             self.lineReceived(self.timeoutResponse)
         else:
             #TODO: should maybe just be an exception
-            print "a deferred finished that wasn't in the front of the queue... looking for it to remove it to at least try and stay sane"
+            self.log.warn("A deferred finished that wasn't in the front of the queue... looking for it to remove it to at least try and stay sane")
             self._requests = [x for x in self._requests if x[1] != deferred]
 
     def sendLine(self, line):
@@ -80,11 +91,14 @@ class DeviceClientProtocol(protocol.Protocol):
     to be sent to it. When it receives a command it sends the command to the device and then forwards along
     the device's response.
     """
+    
+    log = Logger(observer=printToConsole)
+    
     def __init__(self, deviceProtocol):
         self.deviceProtocol = deviceProtocol
     
     def connectionMade(self):
-        print 'connected, sending my deviceId', self.deviceProtocol.deviceId
+        self.log.info("Connected, registering device {deviceId!s}", deviceId=self.deviceProtocol.deviceId)
         self._sendLine(self.deviceProtocol.deviceId)
     
     def dataReceived(self, data):
@@ -104,23 +118,25 @@ class DeviceClientFactory(protocol.ReconnectingClientFactory):
     """
     maxDelay = 60
     
+    log = Logger(observer=printToConsole)
+    
     def __init__(self, deviceProtocol):
         self.deviceProtocol = deviceProtocol
     
     def startedConnecting(self, connector):
-        print 'Attempting to connect to', connector.getDestination()
+        self.log.info("Attempting to connect to {destination!s}", destination=connector.getDestination())
     
     def buildProtocol(self, addr):
-        print 'Successfully connected to', addr
+        self.log.info("Successfully connected to {destination!s}", destination=addr)
         self.resetDelay()
         return DeviceClientProtocol(self.deviceProtocol)
 
     def clientConnectionLost(self, connector, reason):
-        print 'Lost connection.  Reason:', reason
+        self.log.info("Lost connection. Reason: {reason!s}", reason=reason)
         protocol.ReconnectingClientFactory.clientConnectionLost(self, connector, reason)
 
     def clientConnectionFailed(self, connector, reason):
-        print 'Connection failed. Reason:', reason
+        self.log.info("Connection failed. Reason: {reason!s}", reason=reason)
         protocol.ReconnectingClientFactory.clientConnectionFailed(self, connector, reason)
 
 
@@ -159,32 +175,65 @@ class DeviceServerFactory(protocol.Factory):
     device connects. It also manages the list of devices and is a gateway for sending commands to devices.
     """
     protocol = DeviceServerProtocol
+    log = Logger(observer=printToConsole)
     
     def __init__(self):
         self.devices = {}
     
     def addDevice(self, protocol):
         if protocol.deviceId in self.devices:
-            print 'deviceClient already registered, dropping the second one'
+            self.log.warn("Received a registration for {deviceId} but one is already registered, ignoring the second device", deviceId=protocol.deviceId)
             protocol.disconnect()
         self.devices[protocol.deviceId] = protocol
     
     def removeDevice(self, protocol):
         if protocol.deviceId not in self.devices:
-            print 'no deviceClient found, not unregistering'
+            self.log.warn("Attempted to unregister device {deviceId} but no device was found", deviceId=protocol.deviceId)
             return
         del self.devices[protocol.deviceId]
         
     @inlineCallbacks
     def sendCommand(self, deviceId, command):
         if deviceId not in self.devices:
-            print 'deviceClient', deviceId, 'not connected'
+            self.log.warn("Received a command for {deviceId} but no device is connected", deviceId=deviceId)
+            returnValue(None)
         else:
+            self.log.debug("Sending command {command} to device {deviceId}", command=command, deviceId=deviceId)
             result = yield self.devices[deviceId].sendLine(command)
             returnValue(result)
 
+class MacroResource(resource.Resource):
+    isLeaf = True
+
+    def __init__(self, macroName):
+        self.macroName = macroName
+
+    def render_GET(self, request):
+        request.setHeader("content-type", "text/plain")
+        
+        # look up the macro
+        macro = []
+        
+        # for each command, send it and wait for the response
+        for (device, command) in macro:
+            # TODO: this is a race
+            deferredRender = self.commandSenderFactory.sendCommand(device, command)
+            deferredRender.addCallback(lambda x: self._delayedRender(request, x))
+        
+        return NOT_DONE_YET
+    
+    def _delayedRender(self, request, result):
+        print self.command, 'result was', result
+        if result == None:
+            request.setResponseCode(500)
+            request.write("NO_DEVICE_FOUND")
+        else:
+            request.write(str(result))
+        request.finish()
+
 class DeviceCommandResource(resource.Resource):
     isLeaf = True
+    log = Logger(observer=printToConsole)
 
     def __init__(self, device, command, commandSenderFactory):
         self.device = device
@@ -201,7 +250,7 @@ class DeviceCommandResource(resource.Resource):
         return NOT_DONE_YET
     
     def _delayedRender(self, request, result):
-        print self.command, 'result was', result
+        self.log.info("Result for command '{command}' was '{result}'", command=self.command, result=result)
         request.write(str(self.command) + '=' + str(result) + "\n")
         request.finish()
 
