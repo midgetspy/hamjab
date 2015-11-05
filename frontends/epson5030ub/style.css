@@ -1,0 +1,182 @@
+.light-container {
+    display: inline-block;
+    text-align: center;
+    margin-left: 10px;
+}
+
+.light {
+    border: 2px solid black;
+    border-radius: 10px;
+    height: 10px;
+    width: 50px;
+    box-shadow:
+        inset 2px 2px 4px 2px rgba(255,255,255,.5),
+        inset -2px -2px 4px 2px rgba(0,0,0,.5);
+    background: #ddd;
+}
+
+#lights {
+    display: table;
+}
+
+.light-on {
+    background-color: #0037FF;
+}
+
+.button {
+    background: #ddd;
+    border: 2px solid black;
+    box-shadow:
+        inset 2px 2px 5px 2px rgba(255,255,255,.5),
+        inset -2px -2px 5px 0px rgba(0,0,0,.5);
+    border-radius: 2px;
+    position: relative;
+    cursor: pointer;
+    text-align: center;
+    padding-bottom: 2px;
+    padding-right: 2px;
+    padding-top: 0px;
+    padding-left: 0px;
+}
+
+.button:active {
+    box-shadow:
+        inset -2px -2px 5px 2px rgba(255,255,255,.5),
+        inset 2px 2px 5px 0px rgba(0,0,0,.5);
+    padding-bottom: 0px;
+    padding-right: 0px;
+    padding-top: 2px;
+    padding-left: 2px;
+}
+
+.button-container {
+    display: inline-block;
+    vertical-align: top;
+}
+
+#main-buttons {
+    position: relative;
+    width: 200px;
+    height: 300px;
+    padding-left: 30px;
+    padding-top: 10px;
+}
+
+#main-buttons .button {
+    position: absolute;
+}
+
+#main-buttons .button.horizontal {
+    width: 70px;
+    height: 20px;
+    line-height: 20px;
+}
+
+#main-buttons .button.vertical {
+    width: 20px;
+    height: 70px;
+}
+
+#panel-container {
+    position: relative;
+}
+
+#menu-button {
+    left: 0px;
+    top: 0px;
+}
+
+#up-button {
+    left: 80px;
+    top: 40px;
+}
+
+#left-button {
+    left: 0px;
+    top: 120px;
+}
+
+#right-button {
+    left: 110px;
+    top: 120px;
+}
+
+#down-button {
+    left: 80px;
+    top: 150px;
+}
+
+#enter-button {
+    left: 0px;
+    top: 240px;
+}
+
+#escape-button {
+    left: 110px;
+    top: 240px;
+}
+
+
+#left-buttons .button {
+    width: 75px;
+    height: 125px;
+    margin: 10px;
+}
+
+#power-symbol {
+    position: relative;
+    left: 25px;
+    top: 45px;
+}
+
+#power-symbol #circle {
+    border-radius: 50%;
+    width: 22px;
+    height: 22px;
+    border: 4px solid black;
+    position: absolute;
+    top: 6px;
+}
+
+#power-symbol #line {
+    position: absolute;
+    width: 4px;
+    height: 20px;
+    left: 9px;
+    background: black;
+    border-left: 4px solid #ddd;
+    border-right: 4px solid #ddd;
+}
+
+#source-symbol {
+    position: relative;
+    top: 50px;
+    left: 10px;
+}
+
+#source-symbol #line {
+    background: black;
+    height: 5px;
+    width: 15px;
+    top: 10px;
+    position: absolute;
+}
+
+#source-symbol #arrow-right {
+    position: absolute;
+    width: 0px;
+    height: 0px;
+    border-top: 7px solid transparent;
+    border-bottom: 7px solid transparent;
+    border-left: 7px solid black;
+    top: 5px;
+    left: 15px;
+}
+
+#source-symbol #box {
+    position: absolute;
+    border: 4px solid black;
+    width: 32px; /* 40px with borders */
+    height: 17px; /* 25px with borders */
+    left:8px;
+}

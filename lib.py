@@ -3,6 +3,7 @@ import json, traceback
 from twisted.logger import Logger, ILogObserver, formatEventAsClassicLogText
 from twisted.web import resource
 from twisted.web.server import NOT_DONE_YET
+from twisted.web.static import File
 from twisted.internet import protocol, reactor
 from twisted.internet.defer import Deferred, returnValue, inlineCallbacks
 from twisted.internet import error
@@ -278,6 +279,8 @@ class CommandServer(resource.Resource):
             return self._handle_sendCommand(request)
         elif name == "listDevices":
             return DeviceListResource(self.commandSenderFactory)
+        elif name == "frontEnd":
+            return File('frontends/')
 
         return resource.NoResource()
 
