@@ -252,7 +252,11 @@ class DeviceCommandResource(resource.Resource):
     
     def _delayedRender(self, request, result):
         self.log.info("Result for command '{command}' was '{result}'", command=self.command, result=result)
-        request.write(str(self.command) + '=' + str(result) + "\n")
+        if result == None:
+            request.setResponseCode(500)
+            request.write("NO_DEVICE_FOUND")
+        else:
+            request.write(str(result))
         request.finish()
 
 class DeviceListResource(resource.Resource):
