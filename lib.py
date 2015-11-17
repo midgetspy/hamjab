@@ -293,14 +293,17 @@ class CommandServer(resource.Resource):
             return resource.ErrorPage(500, "Missing parameter", "Query String argument " + expectedArg + " is not optional")
         return None
     
+    def _get_args(self, request, args):
+        return [request.args[x][0] for x in args]
+    
     def _handle_sendCommand(self, request):
-        for arg in ("fromClient", "toDevice", "command"):
+        args = ("fromClient", "toDevice", "command")
+        for arg in args:
             result = self._check_arg(arg, request.args)
             if result:
                 return result
             
-        device = request.args['toDevice'][0]
-        command = request.args['command'][0]
+        (client, device, command) = self._get_args(request, args)
             
         return DeviceCommandResource(device, command, self.commandSenderFactory)
 
