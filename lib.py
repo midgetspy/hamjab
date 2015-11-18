@@ -31,6 +31,7 @@ def printToConsole(event):
 TIMEOUT = 'TIMEOUT'
 NO_DEVICE_FOUND = 'NO_DEVICE_FOUND'
 SUCCESS = 'SUCCESS'
+DELAY = 'DELAY'
 
 class QueuedLineSender(LineReceiver):
     """
@@ -202,17 +203,23 @@ class DeviceServerFactory(protocol.Factory):
         
     @inlineCallbacks
     def sendCommand(self, deviceId, command):
-        if deviceId not in self.devices:
+        if deviceId not in self.devices and deviceId != DELAY:
             self.log.warn("Received a command for {deviceId} but no device is connected", deviceId=deviceId)
             returnValue(NO_DEVICE_FOUND)
         else:
             
             if type(command) is unicode:
                 command = unicodedata.normalize('NFKD', command).encode('ascii', 'ignore')
-            
-            self.log.debug("Sending command {command} to device {deviceId}", command=command, deviceId=deviceId)
-            result = yield self.devices[deviceId].sendLine(command)
-            self.log.debug("Result of command {command} was '{result}'", command=command, result=result)
+
+            if deviceId == DELAY:
+                length = int(command)
+                self.log.debug("Starting a delay task for {length} seconds", length=length)
+                result = yield deferLater(reactor, length, lambda: None)
+            else:
+    
+                self.log.debug("Sending command {command} to device {deviceId}", command=command, deviceId=deviceId)
+                result = yield self.devices[deviceId].sendLine(command)
+                self.log.debug("Result of command {command} was '{result}'", command=command, result=result)
             returnValue(result)
 
 ############# web server
@@ -305,7 +312,7 @@ class MacroResource(ResourceBase):
     
     log = Logger(observer=printToConsole)
 
-    macroText = """
+    macroJson = """
 {
     "enable3D": {
         "name": "Enable 3D",
@@ -321,14 +328,14 @@ class MacroResource(ResourceBase):
         "name": "Cycle the lights",
         "commands": [
             {"device": "lutrongrx3000", "command": ":A11"},
-            {"device": "delay", "command": "3"},
+            {"device": "DELAY", "command": "3"},
             {"device": "lutrongrx3000", "command": ":A01"}
         ]
     }
 }
 """
 
-    macros = json.loads(macroText)
+    macros = json.loads(macroJson)
     
     def __init__(self, commandSenderFactory):
         ResourceBase.__init__(self)
@@ -340,12 +347,7 @@ class MacroResource(ResourceBase):
         
         for command in macro['commands']:
             
-            if command['device'] == 'delay':
-                length = int(command['command'])
-                self.log.debug("Starting a delay task for {length} seconds", length=length)
-                result = yield deferLater(reactor, length, lambda: None)
-            else:
-                result = yield self.commandSenderFactory.sendCommand(command['device'], command['command'])
+            result = yield self.commandSenderFactory.sendCommand(command['device'], command['command'])
             
             if result in (NO_DEVICE_FOUND, TIMEOUT):
                 self.log.warn("Command failed in macro {macroName}, halting execution. Command was {command}", macroName=macroName, command=command)
