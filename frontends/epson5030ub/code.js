@@ -87,7 +87,7 @@ var setLights = function(curPowerStatus) {
 };
 
 var sendCommand = function(command, success) {
-    var url = '/sendCommand?fromClient=webFrontEnd&toDevice=epson5030ub&command=' + command;
+    var url = '../sendCommand?fromClient=webFrontEnd&toDevice=epson5030ub&command=' + command;
     $.get(url, function(data) {
         if (success !== undefined)
             success(data);

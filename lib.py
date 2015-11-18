@@ -203,6 +203,8 @@ class DeviceServerFactory(protocol.Factory):
             result = yield self.devices[deviceId].sendLine(command)
             returnValue(result)
 
+############# web server
+
 class MacroResource(resource.Resource):
     isLeaf = True
 
@@ -232,19 +234,44 @@ class MacroResource(resource.Resource):
             request.write(str(result))
         request.finish()
 
-class DeviceCommandResource(resource.Resource):
+class DeviceListResource(resource.Resource):
     isLeaf = True
+
+    def __init__(self, commandSenderFactory):
+        self.commandSenderFactory = commandSenderFactory
+
+    def render_GET(self, request):
+        request.setHeader("content-type", "application/json")
+        return json.dumps(self.commandSenderFactory.devices.keys())
+    
+    
+class ResourceBase(resource.Resource):
+    def __init__(self):
+        resource.Resource.__init__(self)
+
+    def _check_arg(self, expectedArg, args): 
+        if expectedArg not in args:
+            return resource.ErrorPage(500, "Missing parameter", "Query String argument " + expectedArg + " is not optional")
+        return None
+    
+    def _get_args(self, request, args):
+        return [request.args[x][0] for x in args]
+
+class SendCommandResource(ResourceBase):
+    isLeaf = True
+    
     log = Logger(observer=printToConsole)
 
     def __init__(self, device, command, commandSenderFactory):
+        ResourceBase.__init__(self)
         self.device = device
-        self.command = command or "No command"
+        self.command = command
         self.commandSenderFactory = commandSenderFactory
 
     def render_GET(self, request):
         request.setHeader("content-type", "text/plain")
         
-        # TODO: is this a race?
+        # TODO: this is a race
         deferredRender = self.commandSenderFactory.sendCommand(self.device, self.command)
         deferredRender.addCallback(lambda x: self._delayedRender(request, x))
         
@@ -259,52 +286,51 @@ class DeviceCommandResource(resource.Resource):
             request.write(str(result))
         request.finish()
 
-class DeviceListResource(resource.Resource):
-    isLeaf = True
+class DeviceResource(ResourceBase):
+    isLeaf = False
+    
+    log = Logger(observer=printToConsole)
 
-    def __init__(self, commandSenderFactory):
+    def __init__(self, device, commandSenderFactory):
+        ResourceBase.__init__(self)
+        self.device = device
         self.commandSenderFactory = commandSenderFactory
 
-    def render_GET(self, request):
-        request.setHeader("content-type", "application/json")
-        return json.dumps(self.commandSenderFactory.devices.keys())
-    
+    def getChild(self, name, request):
+        if name == "sendCommand":
+            args = ("fromClient", "command")
+            for arg in args:
+                result = self._check_arg(arg, request.args)
+                if result:
+                    return result
+                
+            (client, command) = self._get_args(request, args)
+                        
+            return SendCommandResource(self.device, command, self.commandSenderFactory)
+        elif name == 'frontEnd':
+            return File('frontends/{device}/'.format(device=self.device))
+        else:
+            self.log.warn("Unknown page requested: {name!r} as part of {path}", name=repr(name), path=request.path)
 
-class CommandServer(resource.Resource):
+        return resource.NoResource()
+
+
+
+class CommandServer(ResourceBase):
     isLeaf = False
     
     def __init__(self, commandSenderFactory):
-        resource.Resource.__init__(self)
+        ResourceBase.__init__(self)
         self.commandSenderFactory = commandSenderFactory
     
     def getChild(self, name, request):
         
-        if name == "sendCommand":
-            return self._handle_sendCommand(request)
-        elif name == "listDevices":
+        if name == "listDevices":
             return DeviceListResource(self.commandSenderFactory)
-        elif name == "frontEnd":
-            return File('frontends/')
+        elif name in self.commandSenderFactory.devices and '/' in request.path:
+            return DeviceResource(name, self.commandSenderFactory)
 
         return resource.NoResource()
 
-    def _check_arg(self, expectedArg, args): 
-        if expectedArg not in args:
-            return resource.ErrorPage(500, "Missing parameter", "Query String argument " + expectedArg + " is not optional")
-        return None
-    
-    def _get_args(self, request, args):
-        return [request.args[x][0] for x in args]
-    
-    def _handle_sendCommand(self, request):
-        args = ("fromClient", "toDevice", "command")
-        for arg in args:
-            result = self._check_arg(arg, request.args)
-            if result:
-                return result
-            
-        (client, device, command) = self._get_args(request, args)
-            
-        return DeviceCommandResource(device, command, self.commandSenderFactory)
 
 
