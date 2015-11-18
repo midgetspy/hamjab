@@ -1,12 +1,12 @@
-import json, traceback
+import json, traceback, unicodedata
 
 from twisted.logger import Logger, ILogObserver, formatEventAsClassicLogText
 from twisted.web import resource
 from twisted.web.server import NOT_DONE_YET
 from twisted.web.static import File
-from twisted.internet import protocol, reactor
+from twisted.internet import protocol, reactor, error
 from twisted.internet.defer import Deferred, returnValue, inlineCallbacks
-from twisted.internet import error
+from twisted.internet.task import deferLater
 from twisted.protocols.basic import LineReceiver
 
 from zope.interface import provider
@@ -27,18 +27,22 @@ def printToConsole(event):
         print "NO LOG TRACEBACK", traceback.format_stack()
     print log,
 
+############################## constants
+TIMEOUT = 'TIMEOUT'
+NO_DEVICE_FOUND = 'NO_DEVICE_FOUND'
+SUCCESS = 'SUCCESS'
+
 class QueuedLineSender(LineReceiver):
     """
     A class which provides functionality for sending and receiving lines. It expects every line which is sent
     to result in a return line (even if it's empty). It will not send the next line until an answer has been received
     from the previous one - subsequent commands will be queued and executed once a response is received.
     
-    If no response is received after L{timeout} seconds then a L{timeoutResponse} will automatically be returned.
+    If no response is received after L{timeout} seconds then a TIMEOUT will automatically be returned.
     """
     delimiter = '\r'
     sendDelimiter = '\r'
     timeout = 30
-    timeoutResponse = 'TIMEOUT'
 
     log = Logger(observer=printToConsole)
 
@@ -62,7 +66,7 @@ class QueuedLineSender(LineReceiver):
 
     def timeoutDeferred(self, deferred):
         if self.responseDeferred == deferred:
-            self.lineReceived(self.timeoutResponse)
+            self.lineReceived(TIMEOUT)
         else:
             #TODO: should maybe just be an exception
             self.log.warn("A deferred finished that wasn't in the front of the queue... looking for it to remove it to at least try and stay sane")
@@ -197,42 +201,18 @@ class DeviceServerFactory(protocol.Factory):
     def sendCommand(self, deviceId, command):
         if deviceId not in self.devices:
             self.log.warn("Received a command for {deviceId} but no device is connected", deviceId=deviceId)
-            returnValue(None)
+            returnValue(NO_DEVICE_FOUND)
         else:
+            
+            if type(command) is unicode:
+                command = unicodedata.normalize('NFKD', command).encode('ascii', 'ignore')
+            
             self.log.debug("Sending command {command} to device {deviceId}", command=command, deviceId=deviceId)
             result = yield self.devices[deviceId].sendLine(command)
+            self.log.debug("Result of command {command} was '{result}'", command=command, result=result)
             returnValue(result)
 
 ############# web server
-
-class MacroResource(resource.Resource):
-    isLeaf = True
-
-    def __init__(self, macroName):
-        self.macroName = macroName
-
-    def render_GET(self, request):
-        request.setHeader("content-type", "text/plain")
-        
-        # look up the macro
-        macro = []
-        
-        # for each command, send it and wait for the response
-        for (device, command) in macro:
-            # TODO: this is a race
-            deferredRender = self.commandSenderFactory.sendCommand(device, command)
-            deferredRender.addCallback(lambda x: self._delayedRender(request, x))
-        
-        return NOT_DONE_YET
-    
-    def _delayedRender(self, request, result):
-        print self.command, 'result was', result
-        if result == None:
-            request.setResponseCode(500)
-            request.write("NO_DEVICE_FOUND")
-        else:
-            request.write(str(result))
-        request.finish()
 
 class DeviceListResource(resource.Resource):
     isLeaf = True
@@ -278,10 +258,9 @@ class SendCommandResource(ResourceBase):
         return NOT_DONE_YET
     
     def _delayedRender(self, request, result):
-        self.log.info("Result for command '{command}' was '{result}'", command=self.command, result=result)
-        if result == None:
+        if result == NO_DEVICE_FOUND:
             request.setResponseCode(500)
-            request.write("NO_DEVICE_FOUND")
+            request.write(NO_DEVICE_FOUND)
         else:
             request.write(str(result))
         request.finish()
@@ -314,6 +293,79 @@ class DeviceResource(ResourceBase):
 
         return resource.NoResource()
 
+class MacroResource(ResourceBase):
+    isLeaf = True
+    
+    log = Logger(observer=printToConsole)
+
+    macroText = """
+{
+    "enable3D": {
+        "name": "Enable 3D",
+        "commands": [
+            {"device": "epson5030ub", "command": "KEY AA"},
+            {"device": "epson5030ub", "command": "KEY 59"},
+            {"device": "epson5030ub", "command": "KEY 49"},
+            {"device": "epson5030ub", "command": "KEY 3C"},
+            {"device": "epson5030ub", "command": "KEY 9F"}
+        ]
+    },
+    "cycleLights": {
+        "name": "Cycle the lights",
+        "commands": [
+            {"device": "lutrongrx3000", "command": ":A11"},
+            {"device": "delay", "command": "3"},
+            {"device": "lutrongrx3000", "command": ":A01"}
+        ]
+    }
+}
+"""
+
+    macros = json.loads(macroText)
+    
+    def __init__(self, commandSenderFactory):
+        ResourceBase.__init__(self)
+        self.commandSenderFactory = commandSenderFactory
+
+    @inlineCallbacks
+    def _handle_runMacro(self, request, macroName):
+        macro = self.macros[macroName]
+        
+        for command in macro['commands']:
+            
+            if command['device'] == 'delay':
+                length = int(command['command'])
+                self.log.debug("Starting a delay task for {length} seconds", length=length)
+                result = yield deferLater(reactor, length, lambda: None)
+            else:
+                result = yield self.commandSenderFactory.sendCommand(command['device'], command['command'])
+            
+            if result in (NO_DEVICE_FOUND, TIMEOUT):
+                self.log.warn("Command failed in macro {macroName}, halting execution. Command was {command}", macroName=macroName, command=command)
+                request.setResponseCode(500)
+                request.write(result)
+                request.finish()
+                returnValue(None)
+        
+        self.log.info("Finished running macro {macroName}", macroName=macroName)
+        request.write(SUCCESS)
+        request.finish()
+
+    def render_GET(self, request):
+        request.setHeader("content-type", "text/plain")
+        arg = "macroName"
+        result = self._check_arg(arg, request.args)
+        if result:
+            returnValue(result)
+        
+        (macroName, ) = self._get_args(request, (arg,))
+        
+        if macroName not in self.macros:
+            return resource.NoResource().render(request)
+
+        self._handle_runMacro(request, macroName)
+        
+        return NOT_DONE_YET
 
 
 class CommandServer(ResourceBase):
@@ -327,10 +379,11 @@ class CommandServer(ResourceBase):
         
         if name == "listDevices":
             return DeviceListResource(self.commandSenderFactory)
+        elif name == "macro":
+            return MacroResource(self.commandSenderFactory)
         elif name in self.commandSenderFactory.devices and '/' in request.path:
             return DeviceResource(name, self.commandSenderFactory)
 
         return resource.NoResource()
-
 
 
