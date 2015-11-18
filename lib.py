@@ -258,6 +258,10 @@ class SendCommandResource(ResourceBase):
         deferredRender = self.commandSenderFactory.sendCommand(self.device, self.command)
         deferredRender.addCallback(lambda x: self._delayedRender(request, x))
         
+        # if it finishes prematurely then cancel the command
+        finishedDeferred = request.notifyFinish()
+        finishedDeferred.addErrback(lambda x: deferredRender.cancel())
+        
         return NOT_DONE_YET
     
     def _delayedRender(self, request, result):
