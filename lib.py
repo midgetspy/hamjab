@@ -189,13 +189,16 @@ class DeviceServerFactory(protocol.Factory):
         if protocol.deviceId in self.devices:
             self.log.warn("Received a registration for {deviceId} but one is already registered, ignoring the second device", deviceId=protocol.deviceId)
             protocol.disconnect()
-        self.devices[protocol.deviceId] = protocol
+        else:
+            self.log.info("Device client with id {deviceId} connected", deviceId=protocol.deviceId)
+            self.devices[protocol.deviceId] = protocol
     
     def removeDevice(self, protocol):
         if protocol.deviceId not in self.devices:
             self.log.warn("Attempted to unregister device {deviceId} but no device was found", deviceId=protocol.deviceId)
-            return
-        del self.devices[protocol.deviceId]
+        else:
+            self.log.info("Device client with id {deviceId} disconnected", deviceId=protocol.deviceId)
+            del self.devices[protocol.deviceId]
         
     @inlineCallbacks
     def sendCommand(self, deviceId, command):
