@@ -73,9 +73,11 @@ class QueuedLineSender(LineReceiver):
             self.log.warn("A deferred finished that wasn't in the front of the queue... looking for it to remove it to at least try and stay sane")
             self._requests = [x for x in self._requests if x[1] != deferred]
 
-    def sendLine(self, line):
+    def sendLine(self, line, callback):
 
+        # create a deferred to be fired when this line receives a response
         requestDeferred = Deferred(self.timeoutDeferred)
+        requestDeferred.addCallback(callback)
         timeoutDeferred(requestDeferred, self.timeout)
         
         # if we are in the middle of a line then add this one to a queue
@@ -110,9 +112,7 @@ class DeviceClientProtocol(protocol.Protocol):
     def dataReceived(self, data):
         data = data.rstrip('\r')
        
-        #TODO: this is totally a race
-        d = self.deviceProtocol.sendLine(data)
-        d.addCallback(self._sendLine)
+        d = self.deviceProtocol.sendLine(data, self._sendLine)
         
     def _sendLine(self, line):
         self.transport.write(line + '\r')
@@ -202,7 +202,7 @@ class DeviceServerFactory(protocol.Factory):
             del self.devices[protocol.deviceId]
         
     @inlineCallbacks
-    def sendCommand(self, deviceId, command):
+    def sendCommand(self, deviceId, command, callback):
         if deviceId not in self.devices and deviceId != DELAY:
             self.log.warn("Received a command for {deviceId} but no device is connected", deviceId=deviceId)
             returnValue(NO_DEVICE_FOUND)
@@ -214,12 +214,13 @@ class DeviceServerFactory(protocol.Factory):
             if deviceId == DELAY:
                 length = int(command)
                 self.log.debug("Starting a delay task for {length} seconds", length=length)
-                result = yield deferLater(reactor, length, lambda: None)
+                result = yield deferLater(reactor, length, callback)
             else:
     
                 self.log.debug("Sending command {command} to device {deviceId}", command=command, deviceId=deviceId)
-                result = yield self.devices[deviceId].sendLine(command)
+                result = yield self.devices[deviceId].sendLine(command, callback)
                 self.log.debug("Result of command {command} was '{result}'", command=command, result=result)
+            
             returnValue(result)
 
 ############# web server
@@ -261,9 +262,7 @@ class SendCommandResource(ResourceBase):
     def render_GET(self, request):
         request.setHeader("content-type", "text/plain")
         
-        # TODO: this is a race
-        deferredRender = self.commandSenderFactory.sendCommand(self.device, self.command)
-        deferredRender.addCallback(lambda x: self._delayedRender(request, x))
+        deferredRender = self.commandSenderFactory.sendCommand(self.device, self.command, lambda x: self._delayedRender(request, x))
         
         # if it finishes prematurely then cancel the command
         finishedDeferred = request.notifyFinish()
@@ -278,6 +277,8 @@ class SendCommandResource(ResourceBase):
         else:
             request.write(str(result))
         request.finish()
+        
+        return result
 
 class DeviceResource(ResourceBase):
     isLeaf = False
