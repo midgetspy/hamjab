@@ -214,7 +214,7 @@ class DeviceServerFactory(protocol.Factory):
             if deviceId == DELAY:
                 length = int(command)
                 self.log.debug("Starting a delay task for {length} seconds", length=length)
-                result = yield deferLater(reactor, length, callback)
+                result = yield deferLater(reactor, length, callback, DELAY)
             else:
     
                 self.log.debug("Sending command {command} to device {deviceId}", command=command, deviceId=deviceId)
