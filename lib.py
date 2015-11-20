@@ -1,13 +1,16 @@
-import json, traceback, unicodedata
+import traceback, unicodedata
+import os.path
 
 from twisted.logger import Logger, ILogObserver, formatEventAsClassicLogText
 from twisted.web import resource
 from twisted.web.server import NOT_DONE_YET
 from twisted.web.static import File
+from twisted.web.template import Element, renderer, XMLFile, renderElement
 from twisted.internet import protocol, reactor, error
 from twisted.internet.defer import Deferred, returnValue, inlineCallbacks
 from twisted.internet.task import deferLater
 from twisted.protocols.basic import LineReceiver
+from twisted.python.filepath import FilePath
 
 from zope.interface import provider
 
@@ -469,6 +472,49 @@ class MacroResource(ResourceBase):
         
         return NOT_DONE_YET
 
+class MainPageRenderer(Element):
+    loader = XMLFile(FilePath('home/index.html'))
+
+    def __init__(self, macros, commandSenderFactory):
+        self.macros = macros
+        self.commandSenderFactory = commandSenderFactory
+    
+    @renderer
+    def macroList(self, request, tag):
+        for macro in self.macros:
+            yield tag.clone().fillSlots(macroName = macro)
+    
+    @renderer
+    def deviceList(self, request, tag):
+        for device in self.commandSenderFactory.devices:
+            yield tag.clone().fillSlots(deviceName = device)
+
+class TemplateResource(resource.Resource):
+    isLeaf = True
+    
+    def __init__(self, renderer):
+        resource.Resource.__init__(self)
+        self.renderer = renderer
+
+    def render_GET(self, request):
+        request.setHeader("content-type", "text/html")
+        return renderElement(request, self.renderer)
+
+class TemplateFile(File):
+    def __init__(self, *args, **kwargs):
+        File.__init__(self, *args, **kwargs)
+        self.processors = {'.html': self._processTemplate}
+        self.renderers = {}
+ 
+    def addRenderer(self, name, renderer):
+        self.renderers[name] = renderer
+ 
+    def _processTemplate(self, path, registry):
+        file_name = os.path.splitext(os.path.basename(path))[0]
+        if file_name in self.renderers:
+            return TemplateResource(self.renderers[file_name])
+        else:
+            return File(path)
 
 class CommandServer(ResourceBase):
     isLeaf = False
@@ -482,10 +528,13 @@ class CommandServer(ResourceBase):
         if name == "listDevices":
             return DeviceListResource(self.commandSenderFactory)
         elif name == "macro":
-            return MacroResource(self.commandSenderFactory)
+            return MacroResource(self.commandSenderFactory, self.macros)
         elif name in self.commandSenderFactory.devices and '/' in request.path:
             return DeviceResource(name, self.commandSenderFactory)
-
+        elif name == "home":
+            templateParser = TemplateFile('home/')
+            templateParser.addRenderer('index', MainPageRenderer(self.macros, self.commandSenderFactory))
+            return templateParser
+        
         return resource.NoResource()
-
 

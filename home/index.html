@@ -1,0 +1,26 @@
+<html xmlns:t="http://twistedmatrix.com/ns/twisted.web.template/0.1">
+<body>
+<h2>Macros</h2>
+<ul xmlns:t="http://twistedmatrix.com/ns/twisted.web.template/0.1">
+    <li t:render="macroList">
+        <a>
+            <t:attr name="href">
+                /macro?macroName=<t:slot name="macroName" />
+            </t:attr>
+            <t:slot name="macroName" />
+        </a>
+    </li>
+</ul>
+<h2>Devices</h2>
+<ul xmlns:t="http://twistedmatrix.com/ns/twisted.web.template/0.1">
+    <li t:render="deviceList">
+        <a>
+            <t:attr name="href">
+                /<t:slot name="deviceName" />/frontEnd
+            </t:attr>
+            <t:slot name="deviceName" />
+        </a>
+    </li>
+</ul>    
+</body>
+</html>
