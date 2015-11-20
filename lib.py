@@ -391,51 +391,10 @@ class MacroResource(ResourceBase):
     
     log = Logger(observer=printToConsole)
 
-    macroJson = """
-{
-    "startTheatre": {
-        "name": "Prepare theatre",
-        "commands": [
-            {"device": "epson5030ub", "command": "PWR ON"},
-            {"device": "lutrongrx3000", "command": ":A11"}
-        ]
-    },
-    "enable3D": {
-        "name": "Enable 3D",
-        "commands": [
-            {"device": "epson5030ub", "command": "KEY AA"},
-            {"device": "epson5030ub", "command": "KEY 59"},
-            {"device": "epson5030ub", "command": "KEY 49"},
-            {"device": "epson5030ub", "command": "KEY 3C"},
-            {"device": "epson5030ub", "command": "KEY 9F"}
-        ]
-    },
-    "disable3D": {
-        "name": "Disable 3D",
-        "commands": [
-            {"device": "epson5030ub", "command": "KEY AA"},
-            {"device": "epson5030ub", "command": "KEY 58"},
-            {"device": "epson5030ub", "command": "KEY 49"},
-            {"device": "epson5030ub", "command": "KEY 3C"},
-            {"device": "epson5030ub", "command": "KEY 9F"}
-        ]
-    },
-    "cycleLights": {
-        "name": "Cycle the lights",
-        "commands": [
-            {"device": "lutrongrx3000", "command": ":A11"},
-            {"device": "DELAY", "command": "3"},
-            {"device": "lutrongrx3000", "command": ":A01"}
-        ]
-    }
-}
-"""
-
-    macros = json.loads(macroJson)
-    
-    def __init__(self, commandSenderFactory):
+    def __init__(self, commandSenderFactory, macros):
         ResourceBase.__init__(self)
         self.commandSenderFactory = commandSenderFactory
+        self.macros = macros
 
     @inlineCallbacks
     def _handle_runMacro(self, request, macroName):
@@ -516,11 +475,12 @@ class TemplateFile(File):
         else:
             return File(path)
 
-class CommandServer(ResourceBase):
+class CommandServer(resource.Resource):
     isLeaf = False
     
-    def __init__(self, commandSenderFactory):
-        ResourceBase.__init__(self)
+    def __init__(self, commandSenderFactory, macros):
+        resource.Resource.__init__(self)
+        self.macros = macros
         self.commandSenderFactory = commandSenderFactory
     
     def getChild(self, name, request):
