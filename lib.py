@@ -440,12 +440,12 @@ class MainPageRenderer(Element):
     
     @renderer
     def macroList(self, request, tag):
-        for macro in self.macros:
-            yield tag.clone().fillSlots(macroName = macro)
+        for macro in sorted(self.macros, key=lambda x: self.macros[x]['name']):
+            yield tag.clone().fillSlots(macroName = self.macros[macro]['name'], macroId=macro)
     
     @renderer
     def deviceList(self, request, tag):
-        for device in self.commandSenderFactory.devices:
+        for device in sorted(self.commandSenderFactory.devices):
             yield tag.clone().fillSlots(deviceName = device)
 
 class TemplateResource(resource.Resource):
