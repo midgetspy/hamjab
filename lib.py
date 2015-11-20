@@ -1,8 +1,9 @@
+import json
 import traceback, unicodedata
 import os.path
 
 from twisted.logger import Logger, ILogObserver, formatEventAsClassicLogText
-from twisted.web import resource
+from twisted.web.resource import Resource, NoResource, ErrorPage
 from twisted.web.server import NOT_DONE_YET
 from twisted.web.static import File
 from twisted.web.template import Element, renderer, XMLFile, renderElement
@@ -77,11 +78,10 @@ class QueuedLineSender(LineReceiver):
             self.log.warn("A deferred finished that wasn't in the front of the queue... looking for it to remove it to at least try and stay sane")
             self._requests = [x for x in self._requests if x[1] != deferred]
 
-    def sendLine(self, line, callback):
+    def sendLine(self, line):
 
         # create a deferred to be fired when this line receives a response
         requestDeferred = Deferred(self.timeoutDeferred)
-        requestDeferred.addCallback(callback)
         timeoutDeferred(requestDeferred, self.timeout)
         
         # if we are in the middle of a line then add this one to a queue
@@ -109,9 +109,8 @@ class QueuedLineSender(LineReceiver):
         for deferred in deferredList:
             deferred.callback(line)
     
-    def getUnsolicitedData(self, callback):
+    def getUnsolicitedData(self):
         newDeferred = Deferred(self._timeoutUnsolicited)
-        newDeferred.addCallback(callback)
         timeoutDeferred(newDeferred, self.timeout)
         
         self.unsoliticedDeferreds.append(newDeferred)
@@ -133,14 +132,15 @@ class DeviceClientProtocol(protocol.Protocol):
     
     def __init__(self, deviceProtocol):
         self.deviceProtocol = deviceProtocol
-        
-        self.deviceProtocol.getUnsolicitedData(self._receivedUnsolicited)
+        d = self.deviceProtocol.getUnsolicitedData()
+        d.addCallback(self._receivedUnsolicited)
     
     def _receivedUnsolicited(self, data):
         if data != TIMEOUT:
             self._sendLine(data)
         
-        self.deviceProtocol.getUnsolicitedData(self._receivedUnsolicited)
+        d = self.deviceProtocol.getUnsolicitedData()
+        d.addCallback(self._receivedUnsolicited)
     
     def connectionMade(self):
         self.log.info("Connected, registering device {deviceId!s}", deviceId=self.deviceProtocol.deviceId)
@@ -148,7 +148,8 @@ class DeviceClientProtocol(protocol.Protocol):
     
     def dataReceived(self, data):
         data = data.rstrip(self.lineEnd)
-        self.deviceProtocol.sendLine(data, self._sendLine)
+        d = self.deviceProtocol.sendLine(data)
+        d.addCallback(self._sendLine)
         
     def _sendLine(self, line):
         self.transport.write(line + self.lineEnd)
@@ -238,16 +239,16 @@ class DeviceServerFactory(protocol.Factory):
             del self.devices[protocol.deviceId]
         
     @inlineCallbacks
-    def getUnsolicitedData(self, deviceId, callback):
+    def getUnsolicitedData(self, deviceId):
         if deviceId not in self.devices:
             self.log.warn("Received a command for {deviceId} but no device is connected", deviceId=deviceId)
             returnValue(NO_DEVICE_FOUND)
         else:
-            result = yield self.devices[deviceId].getUnsolicitedData(callback)
+            result = yield self.devices[deviceId].getUnsolicitedData()
             returnValue(result)
         
     @inlineCallbacks
-    def sendCommand(self, deviceId, command, callback):
+    def sendCommand(self, deviceId, command):
         if deviceId not in self.devices and deviceId != DELAY:
             self.log.warn("Received a command for {deviceId} but no device is connected", deviceId=deviceId)
             returnValue(NO_DEVICE_FOUND)
@@ -259,18 +260,18 @@ class DeviceServerFactory(protocol.Factory):
             if deviceId == DELAY:
                 length = int(command)
                 self.log.debug("Starting a delay task for {length} seconds", length=length)
-                result = yield deferLater(reactor, length, callback, DELAY)
+                result = yield deferLater(reactor, length, lambda x: None, DELAY)
             else:
     
                 self.log.debug("Sending command {command} to device {deviceId}", command=command, deviceId=deviceId)
-                result = yield self.devices[deviceId].sendLine(command, callback)
+                result = yield self.devices[deviceId].sendLine(command)
                 self.log.debug("Result of command {command} was '{result}'", command=command, result=result)
             
             returnValue(result)
 
 ############# web server
 
-class DeviceListResource(resource.Resource):
+class DeviceListResource(Resource):
     isLeaf = True
 
     def __init__(self, commandSenderFactory):
@@ -281,88 +282,96 @@ class DeviceListResource(resource.Resource):
         return json.dumps(self.commandSenderFactory.devices.keys())
     
     
-class ResourceBase(resource.Resource):
-    def __init__(self):
-        resource.Resource.__init__(self)
-
-    def _check_arg(self, expectedArg, args): 
+class ArgUtils(object):
+    @staticmethod
+    def _check_arg(expectedArg, args): 
         if expectedArg not in args:
-            return resource.ErrorPage(500, "Missing parameter", "Query String argument " + expectedArg + " is not optional")
+            return ErrorPage(500, "Missing parameter", "Query String argument " + expectedArg + " is not optional")
         return None
     
-    def _get_args(self, request, args):
+    @staticmethod
+    def _get_args(request, args):
         return [request.args[x][0] for x in args]
 
-class SendCommandResource(ResourceBase):
+
+class DeferredLeafResource(Resource):
+    do_render = True
     isLeaf = True
     
+    def __init__(self):
+        Resource.__init__(self)
+
+    def render_GET(self, request):
+        # if it finishes prematurely then cancel the command
+        finishedDeferred = request.notifyFinish()
+        finishedDeferred.addErrback(self.dont_render)
+
+        request.setHeader("content-type", "text/plain")
+    
+        self._delayedRender(request)
+        
+        return NOT_DONE_YET
+
+    def dont_render(self, ignored):
+        self.do_render = False
+
+    def _delayedRender(self, request):
+        raise Exception("Shouldn't call this")
+
+class SendCommandResource(DeferredLeafResource):
     log = Logger(observer=printToConsole)
 
     def __init__(self, device, command, commandSenderFactory):
-        ResourceBase.__init__(self)
+        DeferredLeafResource.__init__(self)
         self.device = device
         self.command = command
         self.commandSenderFactory = commandSenderFactory
 
-    def render_GET(self, request):
-        request.setHeader("content-type", "text/plain")
-        
-        deferredRender = self.commandSenderFactory.sendCommand(self.device, self.command, lambda x: self._delayedRender(request, x))
-        
-        # if it finishes prematurely then cancel the command
-        finishedDeferred = request.notifyFinish()
-        finishedDeferred.addErrback(lambda x: deferredRender.cancel())
-        
-        return NOT_DONE_YET
-    
-    def _delayedRender(self, request, result):
+    @inlineCallbacks
+    def _delayedRender(self, request):
+        result = yield self.commandSenderFactory.sendCommand(self.device, self.command)
+
+        if not self.do_render:
+            self.log.debug("Command finished with result {result} but nobody is waiting for the result", result=result)
+            returnValue(None)
+            
         if result == NO_DEVICE_FOUND:
             request.setResponseCode(500)
             request.write(NO_DEVICE_FOUND)
         else:
             request.write(str(result))
         request.finish()
-        
-        return result
 
-class GetUnsolicitedResource(ResourceBase):
-    isLeaf = True
-    
+class GetUnsolicitedResource(DeferredLeafResource):
     log = Logger(observer=printToConsole)
 
     def __init__(self, device, commandSenderFactory):
-        ResourceBase.__init__(self)
+        DeferredLeafResource.__init__(self)
         self.device = device
         self.commandSenderFactory = commandSenderFactory
 
-    def render_GET(self, request):
-        request.setHeader("content-type", "text/plain")
-        
-        deferredRender = self.commandSenderFactory.getUnsolicitedData(self.device, lambda x: self._delayedRender(request, x))
-        
-        # if it finishes prematurely then cancel the command
-        finishedDeferred = request.notifyFinish()
-        finishedDeferred.addErrback(lambda x: deferredRender.cancel())
-        
-        return NOT_DONE_YET
-    
-    def _delayedRender(self, request, result):
+    @inlineCallbacks
+    def _delayedRender(self, request):
+        result = yield self.commandSenderFactory.getUnsolicitedData(self.device)
+
+        if not self.do_render:
+            self.log.debug("Command finished with result {result} but nobody is waiting for the result", result=result)
+            returnValue(None)
+            
         if result == NO_DEVICE_FOUND:
             request.setResponseCode(500)
             request.write(NO_DEVICE_FOUND)
         else:
             request.write(str(result))
         request.finish()
-        
-        return result
 
-class DeviceResource(ResourceBase):
+class DeviceResource(Resource):
     isLeaf = False
     
     log = Logger(observer=printToConsole)
 
     def __init__(self, device, commandSenderFactory):
-        ResourceBase.__init__(self)
+        Resource.__init__(self)
         self.device = device
         self.commandSenderFactory = commandSenderFactory
 
@@ -370,11 +379,11 @@ class DeviceResource(ResourceBase):
         if name == 'sendCommand':
             args = ('fromClient', 'command')
             for arg in args:
-                result = self._check_arg(arg, request.args)
+                result = ArgUtils._check_arg(arg, request.args)
                 if result:
                     return result
                 
-            (client, command) = self._get_args(request, args)
+            (client, command) = ArgUtils._get_args(request, args)
                         
             return SendCommandResource(self.device, command, self.commandSenderFactory)
         elif name == 'frontEnd':
@@ -384,52 +393,35 @@ class DeviceResource(ResourceBase):
         else:
             self.log.warn("Unknown page requested: {name!r} as part of {path}", name=repr(name), path=request.path)
 
-        return resource.NoResource()
+        return NoResource()
 
-class MacroResource(ResourceBase):
-    isLeaf = True
+class MacroResource(DeferredLeafResource):
+    arg = "macroName"
     
     log = Logger(observer=printToConsole)
 
-    def __init__(self, commandSenderFactory, macros):
-        ResourceBase.__init__(self)
+    def __init__(self, commandSenderFactory, macroName, macro):
+        DeferredLeafResource.__init__(self)
         self.commandSenderFactory = commandSenderFactory
-        self.macros = macros
+        self.macroName = macroName
+        self.macro = macro
 
     @inlineCallbacks
-    def _handle_runMacro(self, request, macroName):
-        macro = self.macros[macroName]
-        
-        for command in macro['commands']:
+    def _delayedRender(self, request):
+        for command in self.macro['commands']:
             
-            result = yield self.commandSenderFactory.sendCommand(command['device'], command['command'], lambda x: x)
+            result = yield self.commandSenderFactory.sendCommand(command['device'], command['command'])
             
             if result in (NO_DEVICE_FOUND, TIMEOUT):
-                self.log.warn("Command failed in macro {macroName}, halting execution. Command was {command}", macroName=macroName, command=command)
+                self.log.warn("Command failed in macro {macroName}, halting execution. Command was {command}", macroName=self.macroName, command=command)
                 request.setResponseCode(500)
                 request.write(result)
                 request.finish()
                 returnValue(None)
         
-        self.log.info("Finished running macro {macroName}", macroName=macroName)
+        self.log.info("Finished running macro {macroName}", macroName=self.macroName)
         request.write(SUCCESS)
         request.finish()
-
-    def render_GET(self, request):
-        request.setHeader("content-type", "text/plain")
-        arg = "macroName"
-        result = self._check_arg(arg, request.args)
-        if result:
-            returnValue(result)
-        
-        (macroName, ) = self._get_args(request, (arg,))
-        
-        if macroName not in self.macros:
-            return resource.NoResource().render(request)
-
-        self._handle_runMacro(request, macroName)
-        
-        return NOT_DONE_YET
 
 class MainPageRenderer(Element):
     loader = XMLFile(FilePath('home/index.html'))
@@ -448,11 +440,11 @@ class MainPageRenderer(Element):
         for device in sorted(self.commandSenderFactory.devices):
             yield tag.clone().fillSlots(deviceName = device)
 
-class TemplateResource(resource.Resource):
+class TemplateResource(Resource):
     isLeaf = True
     
     def __init__(self, renderer):
-        resource.Resource.__init__(self)
+        Resource.__init__(self)
         self.renderer = renderer
 
     def render_GET(self, request):
@@ -475,11 +467,11 @@ class TemplateFile(File):
         else:
             return File(path)
 
-class CommandServer(resource.Resource):
+class CommandServer(Resource):
     isLeaf = False
     
     def __init__(self, commandSenderFactory, macros):
-        resource.Resource.__init__(self)
+        Resource.__init__(self)
         self.macros = macros
         self.commandSenderFactory = commandSenderFactory
     
@@ -487,14 +479,26 @@ class CommandServer(resource.Resource):
         
         if name == "listDevices":
             return DeviceListResource(self.commandSenderFactory)
+        
         elif name == "macro":
-            return MacroResource(self.commandSenderFactory, self.macros)
+            result = ArgUtils._check_arg("macroName", request.args)
+            if result:
+                return result
+            
+            (macroName, ) = ArgUtils._get_args(request, ("macroName",))
+            
+            if macroName not in self.macros:
+                return NoResource().render(request)
+            
+            return MacroResource(self.commandSenderFactory, macroName, self.macros[macroName])
+        
         elif name in self.commandSenderFactory.devices and '/' in request.path:
             return DeviceResource(name, self.commandSenderFactory)
+        
         elif name == "home":
             templateParser = TemplateFile('home/')
             templateParser.addRenderer('index', MainPageRenderer(self.macros, self.commandSenderFactory))
             return templateParser
         
-        return resource.NoResource()
+        return NoResource()
 

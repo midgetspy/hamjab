@@ -1,26 +1,33 @@
 <html xmlns:t="http://twistedmatrix.com/ns/twisted.web.template/0.1">
+<head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>Home Page</title>
+    <link rel="stylesheet" href="style.css" />
+    <script src="jquery-1.11.3.min.js"></script>
+</head>
 <body>
-<h2>Macros</h2>
-<ul xmlns:t="http://twistedmatrix.com/ns/twisted.web.template/0.1">
-    <li t:render="macroList">
-        <a>
-            <t:attr name="href">
-                /macro?macroName=<t:slot name="macroName" />
-            </t:attr>
+    <h2>Macros</h2>
+    <div class="list-container" id="macro-container">
+        <div class="list-element" t:render="macroList">
+            <t:attr name="data-macro"><t:slot name="macroId" /></t:attr>
             <t:slot name="macroName" />
-        </a>
-    </li>
-</ul>
-<h2>Devices</h2>
-<ul xmlns:t="http://twistedmatrix.com/ns/twisted.web.template/0.1">
-    <li t:render="deviceList">
-        <a>
+            <div class="macro-status loading"></div>
+            <div class="macro-status fail">X</div>
+            <div class="macro-status checkmark"></div>
+        </div>
+    </div>
+    <h2>Devices</h2>
+    <div class="list-container">
+        <a t:render="deviceList">
             <t:attr name="href">
                 /<t:slot name="deviceName" />/frontEnd
             </t:attr>
-            <t:slot name="deviceName" />
+            <div class="list-element">
+                <t:slot name="deviceName" />
+            </div>
         </a>
-    </li>
-</ul>    
+    </div>
+    <script src="code.js"></script>
 </body>
 </html>
