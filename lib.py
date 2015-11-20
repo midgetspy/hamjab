@@ -440,7 +440,7 @@ class MacroResource(ResourceBase):
         
         for command in macro['commands']:
             
-            result = yield self.commandSenderFactory.sendCommand(command['device'], command['command'])
+            result = yield self.commandSenderFactory.sendCommand(command['device'], command['command'], lambda x: x)
             
             if result in (NO_DEVICE_FOUND, TIMEOUT):
                 self.log.warn("Command failed in macro {macroName}, halting execution. Command was {command}", macroName=macroName, command=command)
