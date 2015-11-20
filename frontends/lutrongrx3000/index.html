@@ -1,0 +1,93 @@
+<!DOCTYPE HTML>
+<html>
+<head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>Lutron GRX-3100/3500 Frontend</title>
+    <link rel="stylesheet" href="style.css" />
+    <script src="jquery-1.11.3.min.js"></script>
+</head>
+<body>
+    <h2>Lutron GRX-3100/3500</h2>
+    <div id="zone-container" class="container">
+        <div class="zone">
+            <div class="zone-button triangle-up" data-zone="1" data-command="up"></div>
+            <div class="zone-button triangle-down" data-zone="1" data-command="down"></div>
+            <span>Zone 1</span>
+        </div>
+        <div class="zone">
+            <div class="zone-button triangle-up" data-zone="2" data-command="up"></div>
+            <div class="zone-button triangle-down" data-zone="2" data-command="down"></div>
+            <span>Zone 2</span>
+        </div>
+        <div class="zone">
+            <div class="zone-button triangle-up" data-zone="3" data-command="up"></div>
+            <div class="zone-button triangle-down" data-zone="3" data-command="down"></div>
+            <span>Zone 3</span>
+        </div>
+        <div class="zone">
+            <div class="zone-button triangle-up" data-zone="4" data-command="up"></div>
+            <div class="zone-button triangle-down" data-zone="4" data-command="down"></div>
+            <span>Zone 4</span>
+        </div>
+        <div class="zone">
+            <div class="zone-button triangle-up" data-zone="0" data-command="up"></div>
+            <div class="zone-button triangle-down" data-zone="0" data-command="down"></div>
+            <span>Master</span>
+        </div>
+    </div>
+    <div id="scene-container" class="container">
+        <div id="more-scenes">
+        Extra scenes
+        </div>
+        <div class="scene-row" id="scene-1">
+            <div class="scene-light light-off"></div>
+            <div class="scene-button button" data-command=":A11"></div>
+            <span>Scene 1</span>
+        </div>
+        <div class="scene-row" id="scene-2">
+            <div class="scene-light light-off"></div>
+            <div class="scene-button button" data-command=":A21"></div>
+            <span>Scene 2</span>
+        </div>
+        <div class="scene-row" id="scene-3">
+            <div class="scene-light light-off"></div>
+            <div class="scene-button button" data-command=":A31"></div>
+            <span>Scene 3</span>
+        </div>
+        <div class="scene-row" id="scene-4">
+            <div class="scene-light light-off"></div>
+            <div class="scene-button button" data-command=":A41"></div>
+            <span>Scene 4</span>
+        </div>
+        <div id="extra-scenes">
+            <div class="scene-row" id="scene-5">
+                <div class="scene-light light-off"></div>
+                <div class="scene-button button" data-command=":A51"></div>
+                <span>Scene 5</span>
+            </div>
+            <div class="scene-row" id="scene-6">
+                <div class="scene-light light-off"></div>
+                <div class="scene-button button" data-command=":A61"></div>
+                <span>Scene 6</span>
+            </div>
+            <div class="scene-row" id="scene-7">
+                <div class="scene-light light-off"></div>
+                <div class="scene-button button" data-command=":A71"></div>
+                <span>Scene 7</span>
+            </div>
+            <div class="scene-row" id="scene-8">
+                <div class="scene-light light-off"></div>
+                <div class="scene-button button" data-command=":A81"></div>
+                <span>Scene 8</span>
+            </div>
+        </div>
+        <div class="scene-row" id="scene-0">
+            <div class="scene-light-padding"></div>
+            <div class="scene-button button" data-command=":A01"></div>
+            <span>Off</span>
+        </div>
+    </div>
+    <script src="code.js"></script>
+</body>
+</html>

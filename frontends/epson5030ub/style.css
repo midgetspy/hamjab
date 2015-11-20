@@ -1,3 +1,14 @@
+body {
+    font-family: sans-serif;
+    font-size: 12px;
+}
+
+#container {
+    border: 2px solid black;
+    padding: 20px;
+    width: 350px;
+}
+
 .light-container {
     display: inline-block;
     text-align: center;

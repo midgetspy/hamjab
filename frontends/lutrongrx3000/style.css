@@ -1,0 +1,172 @@
+body {
+    font-family: sans-serif;
+    font-size: 12px;
+}
+
+.container {
+    border: 2px solid black;
+    padding: 10px;
+    width: 270px;
+}
+
+#zone-container {
+    background-color: #111;
+    color: white;
+}
+
+/* zone positioning */
+.zone {
+    display: inline-block;
+    position: relative;
+    height: 70px;
+    width: 50px;
+    margin-top: 10px;
+}
+
+.zone span {
+    position: relative;
+    top: 50px;
+    width: 100%;
+    text-align: center;
+}
+
+.zone .triangle-up {
+    top: 10px;
+    left: 15px;
+}
+
+.zone .triangle-down {
+    top: 25px;
+    left: 15px;
+}
+
+/* common triangle stuff */
+.zone-button {
+    position: absolute;
+    width: 20px;
+    height: 8px;
+    background: #777;
+    cursor: pointer;
+    margin-bottom: 5px;
+}
+
+.zone-button:after, .zone-button:before {
+    position: absolute;
+    border: solid transparent;
+    content: " ";
+    height: 0;
+    width: 0;
+}
+
+/* triangle up */
+.triangle-up:after, .triangle-up:before {
+    bottom: 8px;
+}
+
+.triangle-up:after {
+    left: 2px;
+    border-bottom-color: #777;
+    border-width: 8px;
+    border-top-width: 0px;
+}
+
+.triangle-up:before {
+    left: 0px;
+    border-bottom-color: #ccc;
+    border-width: 10px;
+    border-top-width: 0px;
+}
+
+/* triangle down */
+.triangle-down:after, .triangle-down:before {
+    top: 8px;
+}
+
+.triangle-down:after {
+    left: 2px;
+    border-top-color: #777;
+    border-width: 8px;
+    border-bottom-width: 0px;
+}
+
+.triangle-down:before {
+    left: 0px;
+    border-top-color: #ccc;
+    border-width: 10px;
+    border-bottom-width: 0px;
+}
+
+/* triangle active */
+.triangle-down:active, .triangle-down:after:active, .triangle-down:before:active, .triangle-up:active, .triangle-up:after:active, .triangle-up:before:active {
+    margin-left: 2px;
+    margin-top: 2px;
+    margin-bottom: 3px;
+}
+
+/* scene stuff */
+#scene-container {
+    padding-top: 10px;
+}
+
+#more-scenes {
+    position: relative;
+    float: right;
+    cursor: pointer;
+}
+
+#extra-scenes {
+    display: none;
+}
+.scene-row {
+    padding-top: 10px;
+    padding-bottom: 10px;
+}
+
+.scene-row div {
+    display: inline-block;
+    position: relative;
+}
+
+.scene-light-padding {
+    width: 12px;
+    height: 12px;
+}
+
+.scene-light {
+    border-radius: 50%;
+    width: 12px;
+    height: 12px;
+}
+
+.scene-button {
+    position: absolute;
+
+    border-radius: 10px;
+    width: 50px;
+    height: 10px;
+    
+    top: 0px;
+    
+    margin-left: 10px;
+    margin-right: 10px;
+    margin-top: 0px;
+    margin-bottom: 2px;
+    
+    background-color: #111;
+    
+    cursor: pointer;
+}
+
+.scene-button:active {
+    margin-left: 12px;
+    margin-right: 8px;
+    top: 2px;
+}
+
+.light-off {
+    background-color: #111;
+}
+
+.light-on {
+    background-color: green;
+}
