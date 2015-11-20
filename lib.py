@@ -49,11 +49,12 @@ class QueuedLineSender(LineReceiver):
 
     def __init__(self):
         self.responseDeferred = None
+        self.unsoliticedDeferreds = []
         self._requests = []
-    
+
     def lineReceived(self, line):
         if not self.responseDeferred:
-            self.log.debug("No deferred found to use for line {line!r}", line=line)
+            self._receivedUnsolicitedLine(line)
         else:
             current_deferred = self.responseDeferred
             self.responseDeferred = None
@@ -90,6 +91,29 @@ class QueuedLineSender(LineReceiver):
     def _sendLine(self, line, deferred):
         self.responseDeferred = deferred
         self.transport.write(line + self.sendDelimiter)
+    
+    def _timeoutUnsolicited(self, deferred):
+        if deferred in self.unsoliticedDeferreds:
+            deferred.callback(TIMEOUT)
+            self.unsoliticedDeferreds.remove(deferred)
+            
+    def _receivedUnsolicitedLine(self, line):
+        self.log.debug("Received unsolicited line: {line!r}", line=line)
+
+        deferredList = self.unsoliticedDeferreds
+        self.unsoliticedDeferreds = []
+
+        for deferred in deferredList:
+            deferred.callback(line)
+    
+    def getUnsolicitedData(self, callback):
+        newDeferred = Deferred(self._timeoutUnsolicited)
+        newDeferred.addCallback(callback)
+        timeoutDeferred(newDeferred, self.timeout)
+        
+        self.unsoliticedDeferreds.append(newDeferred)
+        
+        return newDeferred
 
 
 ################################################# device client
@@ -100,22 +124,31 @@ class DeviceClientProtocol(protocol.Protocol):
     the device's response.
     """
     
+    lineEnd = '\r'
+    
     log = Logger(observer=printToConsole)
     
     def __init__(self, deviceProtocol):
         self.deviceProtocol = deviceProtocol
+        
+        self.deviceProtocol.getUnsolicitedData(self._receivedUnsolicited)
+    
+    def _receivedUnsolicited(self, data):
+        if data != TIMEOUT:
+            self._sendLine(data)
+        
+        self.deviceProtocol.getUnsolicitedData(self._receivedUnsolicited)
     
     def connectionMade(self):
         self.log.info("Connected, registering device {deviceId!s}", deviceId=self.deviceProtocol.deviceId)
         self._sendLine(self.deviceProtocol.deviceId)
     
     def dataReceived(self, data):
-        data = data.rstrip('\r')
-       
-        d = self.deviceProtocol.sendLine(data, self._sendLine)
+        data = data.rstrip(self.lineEnd)
+        self.deviceProtocol.sendLine(data, self._sendLine)
         
     def _sendLine(self, line):
-        self.transport.write(line + '\r')
+        self.transport.write(line + self.lineEnd)
 
 class DeviceClientFactory(protocol.ReconnectingClientFactory):
     """
@@ -202,6 +235,15 @@ class DeviceServerFactory(protocol.Factory):
             del self.devices[protocol.deviceId]
         
     @inlineCallbacks
+    def getUnsolicitedData(self, deviceId, callback):
+        if deviceId not in self.devices:
+            self.log.warn("Received a command for {deviceId} but no device is connected", deviceId=deviceId)
+            returnValue(NO_DEVICE_FOUND)
+        else:
+            result = yield self.devices[deviceId].getUnsolicitedData(callback)
+            returnValue(result)
+        
+    @inlineCallbacks
     def sendCommand(self, deviceId, command, callback):
         if deviceId not in self.devices and deviceId != DELAY:
             self.log.warn("Received a command for {deviceId} but no device is connected", deviceId=deviceId)
@@ -280,6 +322,37 @@ class SendCommandResource(ResourceBase):
         
         return result
 
+class GetUnsolicitedResource(ResourceBase):
+    isLeaf = True
+    
+    log = Logger(observer=printToConsole)
+
+    def __init__(self, device, commandSenderFactory):
+        ResourceBase.__init__(self)
+        self.device = device
+        self.commandSenderFactory = commandSenderFactory
+
+    def render_GET(self, request):
+        request.setHeader("content-type", "text/plain")
+        
+        deferredRender = self.commandSenderFactory.getUnsolicitedData(self.device, lambda x: self._delayedRender(request, x))
+        
+        # if it finishes prematurely then cancel the command
+        finishedDeferred = request.notifyFinish()
+        finishedDeferred.addErrback(lambda x: deferredRender.cancel())
+        
+        return NOT_DONE_YET
+    
+    def _delayedRender(self, request, result):
+        if result == NO_DEVICE_FOUND:
+            request.setResponseCode(500)
+            request.write(NO_DEVICE_FOUND)
+        else:
+            request.write(str(result))
+        request.finish()
+        
+        return result
+
 class DeviceResource(ResourceBase):
     isLeaf = False
     
@@ -291,8 +364,8 @@ class DeviceResource(ResourceBase):
         self.commandSenderFactory = commandSenderFactory
 
     def getChild(self, name, request):
-        if name == "sendCommand":
-            args = ("fromClient", "command")
+        if name == 'sendCommand':
+            args = ('fromClient', 'command')
             for arg in args:
                 result = self._check_arg(arg, request.args)
                 if result:
@@ -303,6 +376,8 @@ class DeviceResource(ResourceBase):
             return SendCommandResource(self.device, command, self.commandSenderFactory)
         elif name == 'frontEnd':
             return File('frontends/{device}/'.format(device=self.device))
+        elif name == 'getUnsolicited':
+            return GetUnsolicitedResource(self.device, self.commandSenderFactory)
         else:
             self.log.warn("Unknown page requested: {name!r} as part of {path}", name=repr(name), path=request.path)
 
