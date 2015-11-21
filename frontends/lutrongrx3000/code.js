@@ -47,6 +47,8 @@ $(document).ready(function() {
         sendCommand(toSend);
     });
     
+    sendCommand(':G', handleSceneSelect);
+    
     requestUnsolicited();
 });
 
