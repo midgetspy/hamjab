@@ -1,9 +1,11 @@
 import json
 import os.path
 
-from lib import printToConsole, NO_DEVICE_FOUND, TIMEOUT, SUCCESS
+from lib import printToConsole, NO_DEVICE_FOUND, TIMEOUT, SUCCESS, DELAY
 
+from twisted.internet import reactor
 from twisted.internet.defer import returnValue, inlineCallbacks
+from twisted.internet.task import deferLater
 from twisted.logger import Logger
 from twisted.python.filepath import FilePath
 from twisted.web.resource import Resource, NoResource, ErrorPage
@@ -18,12 +20,12 @@ class DeviceListResource(Resource):
     """
     isLeaf = True
 
-    def __init__(self, commandSenderFactory):
-        self.commandSenderFactory = commandSenderFactory
+    def __init__(self, deviceServerFactory):
+        self.deviceServerFactory = deviceServerFactory
 
     def render_GET(self, request):
         request.setHeader("content-type", "application/json")
-        return json.dumps(self.commandSenderFactory.devices.keys())
+        return json.dumps(self.deviceServerFactory.devices.keys())
     
     
 class ArgUtils(object):
@@ -76,15 +78,14 @@ class SendCommandResource(DeferredLeafResource):
     """
     log = Logger(observer=printToConsole)
 
-    def __init__(self, device, command, commandSenderFactory):
+    def __init__(self, device, command):
         DeferredLeafResource.__init__(self)
         self.device = device
         self.command = command
-        self.commandSenderFactory = commandSenderFactory
 
     @inlineCallbacks
     def _delayedRender(self, request):
-        result = yield self.commandSenderFactory.sendCommand(self.device, self.command)
+        result = yield self.device.sendCommand(self.command)
 
         if not self.do_render:
             self.log.debug("Command finished with result {result} but nobody is waiting for the result", result=result)
@@ -104,14 +105,13 @@ class GetUnsolicitedResource(DeferredLeafResource):
     
     log = Logger(observer=printToConsole)
 
-    def __init__(self, device, commandSenderFactory):
+    def __init__(self, device):
         DeferredLeafResource.__init__(self)
         self.device = device
-        self.commandSenderFactory = commandSenderFactory
 
     @inlineCallbacks
     def _delayedRender(self, request):
-        result = yield self.commandSenderFactory.getUnsolicitedData(self.device)
+        result = yield self.device.getUnsolicitedData()
 
         if not self.do_render:
             self.log.debug("Command finished with result {result} but nobody is waiting for the result", result=result)
@@ -133,10 +133,9 @@ class DeviceResource(Resource):
     
     log = Logger(observer=printToConsole)
 
-    def __init__(self, device, commandSenderFactory):
+    def __init__(self, device):
         Resource.__init__(self)
         self.device = device
-        self.commandSenderFactory = commandSenderFactory
 
     def getChild(self, name, request):
         if name == 'sendCommand':
@@ -148,11 +147,14 @@ class DeviceResource(Resource):
                 
             (client, command) = ArgUtils._get_args(request, args)
                         
-            return SendCommandResource(self.device, command, self.commandSenderFactory)
+            return SendCommandResource(self.device, command)
+        
         elif name == 'frontEnd':
-            return File('frontends/{device}/'.format(device=self.device))
+            return File('frontends/{device}/'.format(device=self.device.deviceId))
+
         elif name == 'getUnsolicited':
-            return GetUnsolicitedResource(self.device, self.commandSenderFactory)
+            return GetUnsolicitedResource(self.device)
+        
         else:
             self.log.warn("Unknown page requested: {name!r} as part of {path}", name=repr(name), path=request.path)
 
@@ -168,24 +170,40 @@ class MacroResource(DeferredLeafResource):
     
     log = Logger(observer=printToConsole)
 
-    def __init__(self, commandSenderFactory, macroName, macro):
+    def __init__(self, deviceServerFactory, macroName, macro):
         DeferredLeafResource.__init__(self)
-        self.commandSenderFactory = commandSenderFactory
+        self.deviceServerFactory = deviceServerFactory
         self.macroName = macroName
         self.macro = macro
 
     @inlineCallbacks
     def _delayedRender(self, request):
+        
+        def fail(result):
+            self.log.warn("Command failed in macro {macroName}, halting execution. Command was {command}", macroName=self.macroName, command=command)
+            request.setResponseCode(500)
+            request.write(result)
+            request.finish()
+            returnValue(None)
+        
         for command in self.macro['commands']:
             
-            result = yield self.commandSenderFactory.sendCommand(command['device'], command['command'])
+            deviceId = command['device']
             
-            if result in (NO_DEVICE_FOUND, TIMEOUT):
-                self.log.warn("Command failed in macro {macroName}, halting execution. Command was {command}", macroName=self.macroName, command=command)
-                request.setResponseCode(500)
-                request.write(result)
-                request.finish()
-                returnValue(None)
+            if deviceId == DELAY:
+                length = int(command['command'])
+                self.log.debug("Starting a delay task for {length} seconds", length=length)
+                yield deferLater(reactor, length, lambda x: None, DELAY)
+
+            elif not self.deviceServerFactory.isDeviceRegistered(deviceId):
+                fail(NO_DEVICE_FOUND)
+            
+            else:
+                device = self.deviceServerFactory.getDevice(deviceId)
+                
+                result = yield device.sendCommand(command['command'])
+                if result in (NO_DEVICE_FOUND, TIMEOUT):
+                    fail(result)
         
         self.log.info("Finished running macro {macroName}", macroName=self.macroName)
         request.write(SUCCESS)
@@ -199,9 +217,9 @@ class MainPageRenderer(Element):
     
     loader = XMLFile(FilePath('home/index.html'))
 
-    def __init__(self, macros, commandSenderFactory):
+    def __init__(self, macros, deviceServerFactory):
         self.macros = macros
-        self.commandSenderFactory = commandSenderFactory
+        self.deviceServerFactory = deviceServerFactory
     
     @renderer
     def macroList(self, request, tag):
@@ -210,7 +228,7 @@ class MainPageRenderer(Element):
     
     @renderer
     def deviceList(self, request, tag):
-        for device in sorted(self.commandSenderFactory.devices):
+        for device in sorted(self.deviceServerFactory.devices):
             yield tag.clone().fillSlots(deviceName = device)
 
 class TemplateResource(Resource):
@@ -256,15 +274,15 @@ class CommandServer(Resource):
     
     isLeaf = False
     
-    def __init__(self, commandSenderFactory, macros):
+    def __init__(self, deviceServerFactory, macros):
         Resource.__init__(self)
         self.macros = macros
-        self.commandSenderFactory = commandSenderFactory
+        self.deviceServerFactory = deviceServerFactory
     
     def getChild(self, name, request):
         
         if name == "listDevices":
-            return DeviceListResource(self.commandSenderFactory)
+            return DeviceListResource(self.deviceServerFactory)
         
         elif name == "macro":
             result = ArgUtils._check_arg("macroName", request.args)
@@ -276,14 +294,17 @@ class CommandServer(Resource):
             if macroName not in self.macros:
                 return NoResource().render(request)
             
-            return MacroResource(self.commandSenderFactory, macroName, self.macros[macroName])
+            return MacroResource(self.deviceServerFactory, macroName, self.macros[macroName])
         
-        elif name in self.commandSenderFactory.devices and '/' in request.path:
-            return DeviceResource(name, self.commandSenderFactory)
+        elif self.deviceServerFactory.isDeviceRegistered(name) and '/' in request.path:
+            
+            device = self.deviceServerFactory.getDevice(name)
+            
+            return DeviceResource(device)
         
         elif name == "home":
             templateParser = TemplateFile('home/')
-            templateParser.addRenderer('index', MainPageRenderer(self.macros, self.commandSenderFactory))
+            templateParser.addRenderer('index', MainPageRenderer(self.macros, self.deviceServerFactory))
             return templateParser
         
         return NoResource()

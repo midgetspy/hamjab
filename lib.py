@@ -3,7 +3,6 @@ import traceback, unicodedata
 from twisted.logger import Logger, ILogObserver, formatEventAsClassicLogText
 from twisted.internet import protocol, reactor, error
 from twisted.internet.defer import Deferred, returnValue, inlineCallbacks
-from twisted.internet.task import deferLater
 from twisted.protocols.basic import LineReceiver
 
 from zope.interface import provider
@@ -74,6 +73,9 @@ class QueuedLineSender(LineReceiver):
 
     def sendLine(self, line):
 
+        if type(line) is unicode:
+            line = unicodedata.normalize('NFKD', line).encode('ascii', 'ignore')
+
         # create a deferred to be fired when this line receives a response
         requestDeferred = Deferred(self.timeoutDeferred)
         timeoutDeferred(requestDeferred, self.timeout)
@@ -103,13 +105,15 @@ class QueuedLineSender(LineReceiver):
         for deferred in deferredList:
             deferred.callback(line)
     
+    @inlineCallbacks
     def getUnsolicitedData(self):
         newDeferred = Deferred(self._timeoutUnsolicited)
         timeoutDeferred(newDeferred, self.timeout)
         
         self.unsoliticedDeferreds.append(newDeferred)
         
-        return newDeferred
+        result = yield newDeferred
+        returnValue(result)
 
 
 ################################################# device client
@@ -205,6 +209,13 @@ class DeviceServerProtocol(QueuedLineSender):
     def disconnect(self):
         self.transport.abortConnection()
 
+    @inlineCallbacks
+    def sendCommand(self, command):
+        self.log.debug("Sending command {command} to device {deviceId}", command=command, deviceId=self.deviceId)
+        result = yield self.sendLine(command)
+        self.log.debug("Result of command {command} was '{result}'", command=command, result=result)
+        
+        returnValue(result)
 
 class DeviceServerFactory(protocol.Factory):
     """
@@ -232,33 +243,9 @@ class DeviceServerFactory(protocol.Factory):
             self.log.info("Device client with id {deviceId} disconnected", deviceId=protocol.deviceId)
             del self.devices[protocol.deviceId]
         
-    @inlineCallbacks
-    def getUnsolicitedData(self, deviceId):
-        if deviceId not in self.devices:
-            self.log.warn("Received a command for {deviceId} but no device is connected", deviceId=deviceId)
-            returnValue(NO_DEVICE_FOUND)
-        else:
-            result = yield self.devices[deviceId].getUnsolicitedData()
-            returnValue(result)
+    def isDeviceRegistered(self, deviceId):
+        return deviceId in self.devices
         
-    @inlineCallbacks
-    def sendCommand(self, deviceId, command):
-        if deviceId not in self.devices and deviceId != DELAY:
-            self.log.warn("Received a command for {deviceId} but no device is connected", deviceId=deviceId)
-            returnValue(NO_DEVICE_FOUND)
-        else:
-            
-            if type(command) is unicode:
-                command = unicodedata.normalize('NFKD', command).encode('ascii', 'ignore')
-
-            if deviceId == DELAY:
-                length = int(command)
-                self.log.debug("Starting a delay task for {length} seconds", length=length)
-                result = yield deferLater(reactor, length, lambda x: None, DELAY)
-            else:
-    
-                self.log.debug("Sending command {command} to device {deviceId}", command=command, deviceId=deviceId)
-                result = yield self.devices[deviceId].sendLine(command)
-                self.log.debug("Result of command {command} was '{result}'", command=command, result=result)
-            
-            returnValue(result)
+    def getDevice(self, deviceId):
+        if self.isDeviceRegistered(deviceId):
+            return self.devices[deviceId]
