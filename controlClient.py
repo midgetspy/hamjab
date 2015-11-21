@@ -1,40 +1,19 @@
-from twisted.internet import reactor
-from twisted.web.client import Agent, readBody
-from twisted.web.http_headers import Headers
-from twisted.internet.defer import inlineCallbacks, returnValue
+import urllib2
 
-root_url = 'http://localhost:8080/sendCommand'
-
-agent = Agent(reactor)
-
-class SyncronousWebClient(object):
+class ControlClient(object):
+    def __init__(self, hostname, port):
+        self.url_root = "http://{host}:{port}/".format(host = hostname, port = port)
     
-    @inlineCallbacks
-    def _get(self, url):
-        response = yield agent.request('GET', url, self.headers, None)
-        responseBody = yield readBody(response)
-        returnValue(responseBody)
+    def _request_url(self, url_path):
+        url = self.url_root + url_path
+        page = urllib2.urlopen(url)
+        return page.read()
     
-class ControlClient(SyncronousWebClient):
-    headers = Headers({'User-Agent': ['Client']})
-    
-    def __init__(self, name):
-        self.name = name
+    def sendCommand(self, deviceId, command):
+        url = "{deviceId}/sendCommand?fromClient=controlClient&command={command}".format(deviceId = deviceId, command = command)
+        return self._request_url(url)
 
-    def _build_url(self, toDevice, command):
-        return '{}?fromClient={}&toDevice={}&command={}'.format(root_url, self.name, toDevice, command) 
-    
-    def executeCommand(self, toDevice, command):
-        url = self._build_url(toDevice, command)
-        print "Sending request to", url
-        return self._get(url)
+    def sendMacro(self, macroName):
+        url = "macro?macroName={macroName}".format(macroName = macroName)
+        return self._request_url(url)
 
-    
-client = ControlClient('MyClient')
-result = client.executeCommand('myDevice', 'myCommand')
-result.addCallback(lambda x: print_it(x))
-
-def print_it(x):
-    print x
-
-#reactor.run()
