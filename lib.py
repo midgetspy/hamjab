@@ -23,6 +23,12 @@ def timeoutDeferred(deferred, timeout):
         return result
     deferred.addBoth(gotResult)
 
+############################## constants
+TIMEOUT = 'TIMEOUT'
+NO_DEVICE_FOUND = 'NO_DEVICE_FOUND'
+SUCCESS = 'SUCCESS'
+DELAY = 'DELAY'
+
 ################################################### common code
 @provider(ILogObserver)
 def printToConsole(event):
@@ -31,11 +37,6 @@ def printToConsole(event):
         print "NO LOG TRACEBACK", traceback.format_stack()
     print log,
 
-############################## constants
-TIMEOUT = 'TIMEOUT'
-NO_DEVICE_FOUND = 'NO_DEVICE_FOUND'
-SUCCESS = 'SUCCESS'
-DELAY = 'DELAY'
 
 class QueuedLineSender(LineReceiver):
     """
@@ -272,6 +273,9 @@ class DeviceServerFactory(protocol.Factory):
 ############# web server
 
 class DeviceListResource(Resource):
+    """
+    A resource which returns the list of active devices as a json list.
+    """
     isLeaf = True
 
     def __init__(self, commandSenderFactory):
@@ -283,6 +287,9 @@ class DeviceListResource(Resource):
     
     
 class ArgUtils(object):
+    """
+    A helper class with a few methods to simplify and standardize dealing with request arguments.
+    """
     @staticmethod
     def _check_arg(expectedArg, args): 
         if expectedArg not in args:
@@ -295,6 +302,10 @@ class ArgUtils(object):
 
 
 class DeferredLeafResource(Resource):
+    """
+    A base class for resources which are leaf nodes which have deferred rendering of their content. It prevents errors if the request
+    is canceled before the deferred is finished.
+    """
     do_render = True
     isLeaf = True
     
@@ -319,6 +330,10 @@ class DeferredLeafResource(Resource):
         raise Exception("Shouldn't call this")
 
 class SendCommandResource(DeferredLeafResource):
+    """
+    A resource which receives a request to sendCommand and uses the query parameters given to send a command
+    to the specified device. It will wait until the command result comes back before sending the response.
+    """
     log = Logger(observer=printToConsole)
 
     def __init__(self, device, command, commandSenderFactory):
@@ -343,6 +358,10 @@ class SendCommandResource(DeferredLeafResource):
         request.finish()
 
 class GetUnsolicitedResource(DeferredLeafResource):
+    """
+    A resource which handles requests for unsolicited messages for a particular device.
+    """
+    
     log = Logger(observer=printToConsole)
 
     def __init__(self, device, commandSenderFactory):
@@ -366,6 +385,10 @@ class GetUnsolicitedResource(DeferredLeafResource):
         request.finish()
 
 class DeviceResource(Resource):
+    """
+    The resource which serves up all resource related to a device (currently sendCommand, frontEnd, and getUnsolicited). 
+    """
+    
     isLeaf = False
     
     log = Logger(observer=printToConsole)
@@ -396,6 +419,11 @@ class DeviceResource(Resource):
         return NoResource()
 
 class MacroResource(DeferredLeafResource):
+    """
+    A resource which will fire off the specified macro, wait for it to complete, and return the status. If all commands in the
+    macro are able to run successfully the result will be SUCCESS, otherwise a failure result will be provided.
+    """
+    
     arg = "macroName"
     
     log = Logger(observer=printToConsole)
@@ -424,6 +452,11 @@ class MacroResource(DeferredLeafResource):
         request.finish()
 
 class MainPageRenderer(Element):
+    """
+    A template renderer for the index page which displays a list of macros and a list of devices.
+    """
+    
+    
     loader = XMLFile(FilePath('home/index.html'))
 
     def __init__(self, macros, commandSenderFactory):
@@ -441,6 +474,10 @@ class MainPageRenderer(Element):
             yield tag.clone().fillSlots(deviceName = device)
 
 class TemplateResource(Resource):
+    """
+    A small wrapper around the Resource object which takes in an Element and renders that element to the request.
+    """
+    
     isLeaf = True
     
     def __init__(self, renderer):
@@ -452,6 +489,11 @@ class TemplateResource(Resource):
         return renderElement(request, self.renderer)
 
 class TemplateFile(File):
+    """
+    A class which can optionally template any .html file if an appropriate renderer is provided. Any file which doesn't
+    have a template renderer associated with it will just be served up like normal.
+    """
+    
     def __init__(self, *args, **kwargs):
         File.__init__(self, *args, **kwargs)
         self.processors = {'.html': self._processTemplate}
@@ -468,6 +510,10 @@ class TemplateFile(File):
             return File(path)
 
 class CommandServer(Resource):
+    """
+    The root resource. Serves the root resources (devices, macro, and home).
+    """
+    
     isLeaf = False
     
     def __init__(self, commandSenderFactory, macros):
