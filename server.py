@@ -1,5 +1,6 @@
 import json
-from lib import DeviceServerFactory, CommandServer
+from lib import DeviceServerFactory
+from web import CommandServer
 
 from twisted.web import server
 from twisted.internet import reactor, endpoints
