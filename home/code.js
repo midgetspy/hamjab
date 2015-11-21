@@ -7,12 +7,18 @@ $(document).ready(function() {
     });
 
     $('.macro-status').hide();
-
 });
 
+var hideMacroResultTimeoutInSec = 30;
+var hideMacroResultTimer;
+
 var sendCommand = function(macroName) {
-    var url = '../macro?macroName=' + macroName
-    handleMacroResult(macroName, 'LOADING')
+
+    clearTimeout(hideMacroResultTimer);
+
+    var url = '../macro?macroName=' + macroName;
+    handleMacroResult(macroName, 'LOADING');
+    
     $.get(url, function(data) {
         handleMacroResult(macroName, data);
     })
@@ -22,17 +28,23 @@ var sendCommand = function(macroName) {
 };    
 
 var handleMacroResult = function(macro, result) {
-    var macroStatuses = $(".list-element[data-macro='" + macro + "'] .macro-status")
+    var macroStatuses = $(".list-element[data-macro='" + macro + "'] .macro-status");
     
-    macroStatuses.hide();
+    var hideStatuses = function() {
+        macroStatuses.hide();
+    };
+
+    hideStatuses();
     
     if (result === 'SUCCESS') {
         macroStatuses.filter('.checkmark').show();
+        hideMacroResultTimer = setTimeout(hideStatuses, hideMacroResultTimeoutInSec * 1000);
     }
     else if (result === 'LOADING') {
         macroStatuses.filter('.loading').show();
     }
     else {
         macroStatuses.filter('.fail').show();
+        hideMacroResultTimer = setTimeout(hideStatuses, hideMacroResultTimeoutInSec * 1000);
     }
-}
+};
