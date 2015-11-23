@@ -14,9 +14,6 @@ class Device(QueuedLineSender):
         if line == '':
             return
         
-        if not line.startswith('~1 '):
-            print 'not the result of a command'
-
         QueuedLineSender.lineReceived(self, line)
     
     def startConnection(self):
