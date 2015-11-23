@@ -1,13 +1,17 @@
 .list-container {
     width: 300px;
-    border: 2px solid black;
 }
 
 .list-element {
     background: #888;
-    border: 1px solid black;
+    border: 2px solid black;
+    border-bottom: none;
     padding: 5px;
     cursor: pointer;
+}
+
+.list-element:last-child {
+    border-bottom: 2px solid black;
 }
 
 .list-element:active {

@@ -20,6 +20,7 @@ TIMEOUT = 'TIMEOUT'
 NO_DEVICE_FOUND = 'NO_DEVICE_FOUND'
 SUCCESS = 'SUCCESS'
 DELAY = 'DELAY'
+DISABLED = 'DISABLED'
 
 ################################################### common code
 @provider(ILogObserver)

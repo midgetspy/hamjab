@@ -28,6 +28,13 @@
             </div>
         </a>
     </div>
+    <h2>Status</h2>
+    <div class="list-container" id="status-container" t:render="status">
+        <div class="list-element">
+            <t:attr name="data-status"><t:slot name="status" /></t:attr>
+            <t:slot name="status" />
+        </div>
+    </div>
     <script src="code.js"></script>
 </body>
 </html>

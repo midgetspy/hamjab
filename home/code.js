@@ -6,6 +6,13 @@ $(document).ready(function() {
         sendCommand(macro);
     });
 
+    $('#status-container .list-element').click(function() {
+        $.get('../toggleStatus')
+        .always(function() {
+            location.reload();
+        });
+    });
+
     $('.macro-status').hide();
 });
 

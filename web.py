@@ -1,14 +1,14 @@
 import json
 import os.path
 
-from lib import printToConsole, NO_DEVICE_FOUND, TIMEOUT, SUCCESS, DELAY
+from lib import printToConsole, NO_DEVICE_FOUND, TIMEOUT, SUCCESS, DELAY, DISABLED
 
 from twisted.internet import reactor
 from twisted.internet.defer import returnValue, inlineCallbacks
 from twisted.internet.task import deferLater
 from twisted.logger import Logger
 from twisted.python.filepath import FilePath
-from twisted.web.resource import Resource, NoResource, ErrorPage
+from twisted.web.resource import Resource, NoResource, ErrorPage, ForbiddenResource
 from twisted.web.server import NOT_DONE_YET
 from twisted.web.static import File
 from twisted.web.template import Element, renderer, XMLFile, renderElement
@@ -223,13 +223,24 @@ class MainPageRenderer(Element):
     
     @renderer
     def macroList(self, request, tag):
-        for macro in sorted(self.macros, key=lambda x: self.macros[x]['name']):
-            yield tag.clone().fillSlots(macroName = self.macros[macro]['name'], macroId=macro)
+        if not CommandServer.isDisabled:
+            for macro in sorted(self.macros, key=lambda x: self.macros[x]['name']):
+                yield tag.clone().fillSlots(macroName = self.macros[macro]['name'], macroId=macro)
     
     @renderer
     def deviceList(self, request, tag):
-        for device in sorted(self.deviceServerFactory.devices):
-            yield tag.clone().fillSlots(deviceName = device)
+        if not CommandServer.isDisabled:
+            for device in sorted(self.deviceServerFactory.devices):
+                yield tag.clone().fillSlots(deviceName = device)
+                
+    @renderer
+    def status(self, request, tag):
+        if CommandServer.isDisabled:
+            status = 'disabled'
+        else:
+            status = 'enabled'
+            
+        return tag.fillSlots(status=status)
 
 class TemplateResource(Resource):
     """
@@ -273,6 +284,7 @@ class CommandServer(Resource):
     """
     
     isLeaf = False
+    isDisabled = False
     
     def __init__(self, deviceServerFactory, macros):
         Resource.__init__(self)
@@ -281,7 +293,19 @@ class CommandServer(Resource):
     
     def getChild(self, name, request):
         
-        if name == "listDevices":
+        if name == "home":
+            templateParser = TemplateFile('home/')
+            templateParser.addRenderer('index', MainPageRenderer(self.macros, self.deviceServerFactory))
+            return templateParser
+
+        if name == "toggleStatus":
+            CommandServer.isDisabled = not CommandServer.isDisabled
+            return ErrorPage(200, "Status", "Toggled the site status")
+
+        elif CommandServer.isDisabled:
+            return ForbiddenResource("The site is disabled")
+
+        elif name == "listDevices":
             return DeviceListResource(self.deviceServerFactory)
         
         elif name == "macro":
@@ -302,10 +326,6 @@ class CommandServer(Resource):
             
             return DeviceResource(device)
         
-        elif name == "home":
-            templateParser = TemplateFile('home/')
-            templateParser.addRenderer('index', MainPageRenderer(self.macros, self.deviceServerFactory))
-            return templateParser
         
         return NoResource()
 
