@@ -1,21 +1,32 @@
+body {
+    font-family: sans-serif;
+    font-size: 12px;
+}
+
 .list-container {
     width: 300px;
 }
 
-.list-element {
-    background: #888;
+.list-container > h2 {
     border: 2px solid black;
-    border-bottom: none;
+    margin-bottom: 0px;
+    text-align: center;
+    padding: 3px;
+    
+    background-color: #333;
+    color: white;
+}
+
+.list-element {
+    background: #bbb;
+    border: 2px solid black;
+    border-top: none;
     padding: 5px;
     cursor: pointer;
 }
 
-.list-element:last-child {
-    border-bottom: 2px solid black;
-}
-
 .list-element:active {
-    background: #666;
+    background: #888;
 }
 
 .macro-status {

@@ -1,3 +1,4 @@
+import importlib
 import json
 import os.path
 
@@ -231,14 +232,22 @@ class MainPageRenderer(Element):
     def deviceList(self, request, tag):
         if not CommandServer.isDisabled:
             for device in sorted(self.deviceServerFactory.devices):
-                yield tag.clone().fillSlots(deviceName = device)
+                try:
+                    device_path = FilePath('etc/{device}/commands.json'.format(device=device))
+                    with device_path.open() as device_file:
+                        data = device_file.read()
+                        device_data = json.loads(data)
+                        deviceName = device_data['name'] 
+                except Exception as e:
+                    deviceName = device
+                yield tag.clone().fillSlots(deviceId = device, deviceName = deviceName)
                 
     @renderer
     def status(self, request, tag):
         if CommandServer.isDisabled:
-            status = 'disabled'
+            status = 'Enable'
         else:
-            status = 'enabled'
+            status = 'Disable'
             
         return tag.fillSlots(status=status)
 

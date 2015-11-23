@@ -7,8 +7,8 @@
     <script src="jquery-1.11.3.min.js"></script>
 </head>
 <body>
-    <h2>Macros</h2>
     <div class="list-container" id="macro-container">
+        <h2>Macros</h2>
         <div class="list-element" t:render="macroList">
             <t:attr name="data-macro"><t:slot name="macroId" /></t:attr>
             <t:slot name="macroName" />
@@ -17,19 +17,19 @@
             <div class="macro-status checkmark"></div>
         </div>
     </div>
-    <h2>Devices</h2>
     <div class="list-container">
+        <h2>Devices</h2>
         <a t:render="deviceList">
             <t:attr name="href">
-                /<t:slot name="deviceName" />/frontEnd
+                /<t:slot name="deviceId" />/frontEnd
             </t:attr>
             <div class="list-element">
                 <t:slot name="deviceName" />
             </div>
         </a>
     </div>
-    <h2>Status</h2>
     <div class="list-container" id="status-container" t:render="status">
+        <h2>Status</h2>
         <div class="list-element">
             <t:attr name="data-status"><t:slot name="status" /></t:attr>
             <t:slot name="status" />
