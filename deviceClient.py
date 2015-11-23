@@ -8,7 +8,8 @@ server_host = 'localhost'
 
 if __name__ == "__main__":
 
-    device = importlib.import_module('devices.' + device_name).Device
+    device = __import__('devices.' + device_name, globals(), locals(), ['Device']).Device
+
 
     deviceProtocol = device()
     deviceProtocol.startConnection()
