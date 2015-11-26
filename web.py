@@ -1,4 +1,3 @@
-import importlib
 import json
 import os.path
 
@@ -151,7 +150,7 @@ class DeviceResource(Resource):
             return SendCommandResource(self.device, command)
         
         elif name == 'frontEnd':
-            return File('frontends/{device}/'.format(device=self.device.deviceId))
+            return File('etc/{device}/frontend'.format(device=self.device.deviceId))
 
         elif name == 'getUnsolicited':
             return GetUnsolicitedResource(self.device)
@@ -216,7 +215,7 @@ class MainPageRenderer(Element):
     """
     
     
-    loader = XMLFile(FilePath('home/index.html'))
+    loader = XMLFile(FilePath('etc/home/index.html'))
 
     def __init__(self, macros, deviceServerFactory):
         self.macros = macros
@@ -303,7 +302,7 @@ class CommandServer(Resource):
     def getChild(self, name, request):
         
         if name == "home":
-            templateParser = TemplateFile('home/')
+            templateParser = TemplateFile('etc/home/')
             templateParser.addRenderer('index', MainPageRenderer(self.macros, self.deviceServerFactory))
             return templateParser
 
@@ -325,7 +324,7 @@ class CommandServer(Resource):
             (macroName, ) = ArgUtils._get_args(request, ("macroName",))
             
             if macroName not in self.macros:
-                return NoResource().render(request)
+                return NoResource()
             
             return MacroResource(self.deviceServerFactory, macroName, self.macros[macroName])
         
