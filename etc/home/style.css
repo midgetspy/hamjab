@@ -37,6 +37,30 @@ body {
     height: 1.35em;
 }
 
+.list-element.device {
+    cursor: default;
+}
+
+.help {
+    float: right;
+    background: black;
+    border-radius: 50%;
+    width: 1.5em;
+    height: 1.5em;
+    border: 10px;
+    margin-top: -0.15em;
+    cursor: pointer;
+}
+
+.help:after {
+    position: relative;
+    content: "?";
+    font-weight: bold;
+    font-size: 1.5em;
+    left: .15em;
+    color: white;
+}
+
 .checkmark {
     display: inline-block;
     -ms-transform: rotate(45deg); /* IE 9 */

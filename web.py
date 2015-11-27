@@ -152,6 +152,9 @@ class DeviceResource(Resource):
         elif name == 'frontEnd':
             return File('etc/{device}/frontend'.format(device=self.device.deviceId))
 
+        elif name == 'help':
+            return File('etc/help/')
+
         elif name == 'getUnsolicited':
             return GetUnsolicitedResource(self.device)
         
@@ -232,7 +235,7 @@ class MainPageRenderer(Element):
         if not CommandServer.isDisabled:
             for device in sorted(self.deviceServerFactory.devices):
                 try:
-                    device_path = FilePath('etc/{device}/commands.json'.format(device=device))
+                    device_path = FilePath('etc/{device}/frontend/device.json'.format(device=device))
                     with device_path.open() as device_file:
                         data = device_file.read()
                         device_data = json.loads(data)
@@ -306,7 +309,7 @@ class CommandServer(Resource):
             templateParser.addRenderer('index', MainPageRenderer(self.macros, self.deviceServerFactory))
             return templateParser
 
-        if name == "toggleStatus":
+        elif name == "toggleStatus":
             CommandServer.isDisabled = not CommandServer.isDisabled
             return ErrorPage(200, "Status", "Toggled the site status")
 

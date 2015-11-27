@@ -1,0 +1,181 @@
+{
+    "id": "lutrongrx3000",
+    "name": "Lutron GRX-3100/3500",
+    "commands":
+        [
+        	{
+        		"id": "codeRevLevel",
+        		"name": "Code Revision Level",
+        		"description": "This command requests the revision level of the embedded system's software. It is used for diagnostic purposes and may be needed if you ever contact the Lutron Technical Assistance Hotline for assistance.",
+        		"command": {
+        			"format": "V",
+        			"args": []
+        		},
+        		"response": {
+        			"description": ":v high_rev low_rev model"
+        		}
+        	},
+        	{
+        		"id": "selectScene",
+        		"name": "Select Scene",
+        		"description": "Selects any scene on the specified GRAFIK Eye Control Units.",
+        		"command": {
+        			"format": "A{scene}{control_units}",
+        			"args": [
+        				{
+        					"id": "scene",
+        					"name": "Scene",
+        					"description": "Scene to select (from 0 to G)"
+        				},
+        				{
+        					"id": "control_units",
+        					"name": "Control Units",
+        					"description": "Control units to select (1-8, one entry per control unit)"
+        				}
+        			]
+        		},
+        		"examples": [
+        			{
+        				"command": "A21",
+        				"description": "Select scene 2 on Control Unit A1"
+        			},
+        			{
+        				"command": "AG78",
+        				"description": "Select scene 16 on Control Units A7 and A8"
+        			}
+        		]
+        	},
+        	{
+        		"id": "sceneLock",
+        		"name": "Scene Lock",
+        		"description": "Place the specified GRAFIK Eye Control Units in or out of Scene Lock.",
+        		"command": {
+        			"format": "SL{lock_status}{control_units}",
+        			"args": [
+        				{
+        					"id": "lock_status",
+        					"name": "Lock Status",
+        					"description": "+/-: Add or remove the control units from scene lock"
+        				},
+        				{
+        					"id": "control_units",
+        					"name": "Control Units",
+        					"description": "Control units to select (1-8, one entry per control unit)"
+        				}
+        			]
+        		},
+        		"examples": [
+        			{
+        				"command": "SL",
+        				"description": "Release all Control Units from scene lock"
+        			},
+        			{
+        				"command": "SL-1",
+        				"description": "Release only Control Unit 1 from scene lock"
+        			},
+        			{
+        				"command": "SL+36",
+        				"description": "Lock out Control Units 3 and 6"
+        			}
+        		]
+        	},
+        	{
+        		"id": "requestSceneStatus",
+        		"name": "Request Scene Status",
+        		"description": "Report the scene status of all Control Units on the link.",
+        		"command": {
+        			"format": "G",
+        			"args": []
+        		},
+        		"response": {
+        			"description": "ss  [S1][S2][S3][S4][S5][S6][S7][S8]: [Sx]: Scene currently selected on Control Unit at address x"
+        		},
+        		"examples": [
+        			{
+        				"command": "ss 1AMMMMMM",
+        				"description": "Control Unit at address 1 is in scene 1, Control Unit at address 2 is in scene 10, Control units at addresses 3-8 are missing (M)"
+        			}
+        		]
+        	},
+        	{
+        		"id": "zoneLower",
+        		"name": "Zone Lower",
+        		"description": "Ramps down specific zones on a single GRAFIK Eye Control Unit. This command will not affect shade zones.",
+        		"command": {
+        			"format": "D{control_unit}{zones}",
+        			"args": [
+        				{
+        					"id": "control_unit",
+        					"name": "Control Unit",
+        					"description": "Control unit to select (1-8)"
+        				},
+        				{
+        					"id": "zones",
+        					"name": "Zones",
+        					"description": "Zones to ramp down (0-8)"
+        				}
+        			]
+        		},
+        		"examples": [
+        			{
+        				"command": "D5",
+        				"description": "Ramp down all zones on Control Unit 5"
+        			},
+        			{
+        				"command": "D3124",
+        				"description": "Ramp down zones 1, 2, and 4 on Control Unit 3"
+        			}
+        		]
+        	},
+        	{
+        		"id": "zoneLowerStop",
+        		"name": "Zone Lower Stop",
+        		"description": "This command is a shortcut for stopping all ramping down on all Control Units.",
+        		"command": {
+        			"format": "E",
+        			"args": []
+        		},
+        		"examples": []
+        	},
+        	{
+        		"id": "zoneRaise",
+        		"name": "Zone Raise",
+        		"description": "Ramps up specific zones on a single GRAFIK Eye Control Unit. This command will not affect shade zones.",
+        		"command": {
+        			"format": "B{control_unit}{zones}",
+        			"args": [
+        				{
+        					"id": "control_unit",
+        					"name": "Control Unit",
+        					"description": "Control unit to select (1-8)"
+        				},
+        				{
+        					"id": "zones",
+        					"name": "Zones",
+        					"description": "Zones to ramp up (0-8)"
+        				}
+        			]
+        		},
+        		"examples": [
+        			{
+        				"command": "B5",
+        				"description": "Ramp up all zones on Control Unit 5"
+        			},
+        			{
+        				"command": "B3124",
+        				"description": "Ramp up zones 1, 2, and 4 on Control Unit 3"
+        			}
+        		]
+        	},
+        	{
+        		"id": "zoneRaiseStop",
+        		"name": "Zone Raise Stop",
+        		"description": "This command is a shortcut for stopping all ramping up on all Control Units.",
+        		"command": {
+        			"format": "C",
+        			"args": []
+        		},
+        		"examples": []
+        	}
+        ]
+}

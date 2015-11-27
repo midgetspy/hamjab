@@ -1,0 +1,51 @@
+body {
+    font-family: 'tahoma', sans-serif;
+    font-size: 14px;
+}
+
+.group-container .group-container {
+    padding-left: 50px;
+}
+
+.group-container > h2 {
+    cursor: pointer;
+}
+
+.group-container > h2.group-expanded:before {
+    content: "[-] ";
+}
+
+.group-container > h2.group-contracted:before {
+    content: "[+] ";
+}
+
+.command-container {
+    padding: 5px;
+    border: 2px solid black;
+    background: #777;
+    margin: 10px;
+}
+
+.command-container div {
+    padding: 5px;
+}
+
+.command-name {
+    font-weight: bold;
+    font-size: 1.3em;
+    padding-bottom: 10px;
+}
+
+.command-label {
+    display: inline-block;
+    width: 10em;
+    font-weight: bold;
+}
+
+.command-format .command-value {
+    font-family: monospace;
+}
+
+.command-arg, .command-example {
+    margin-left: 2em;
+}

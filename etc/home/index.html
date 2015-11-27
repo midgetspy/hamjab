@@ -19,14 +19,20 @@
     </div>
     <div class="list-container">
         <h2>Devices</h2>
-        <a t:render="deviceList">
-            <t:attr name="href">
-                /<t:slot name="deviceId" />/frontEnd
-            </t:attr>
-            <div class="list-element">
+        <div class="list-element device" t:render="deviceList">
+            <a>
+                <t:attr name="href">
+                    ../<t:slot name="deviceId" />/frontEnd
+                </t:attr>
                 <t:slot name="deviceName" />
-            </div>
-        </a>
+            </a>
+            <a>
+                <t:attr name="href">
+                    ../<t:slot name="deviceId" />/help
+                </t:attr>
+                <span class="help"></span>
+            </a>
+        </div>
     </div>
     <div class="list-container" id="status-container" t:render="status">
         <h2>Status</h2>
