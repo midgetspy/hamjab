@@ -1,9 +1,9 @@
 $(document).ready(function() {
     $('#more-scenes').click(function() {
         $('#extra-scenes').toggle();
-    })
+    });
 
-    $('.button').click(function() {
+    $('.scene-button').click(function() {
         var command = $(this).attr('data-command');
         
         sendCommand(command);
