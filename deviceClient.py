@@ -1,5 +1,3 @@
-import importlib
-
 from twisted.internet import reactor
 from lib import DeviceClientFactory
 
