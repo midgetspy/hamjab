@@ -22,10 +22,9 @@ class Text:
     macroName = "Macro Name:"
     tcpBox = "Server Settings"
     commandBox = "Command"
+    examples = "Examples"
 
 class ControlClientPlugin(eg.PluginBase):
-    text = Text
-    
     def __init__(self):
         self.AddAction(SendGenericCommand)
         self.AddAction(SendMacroCommand)
@@ -43,23 +42,9 @@ class ControlClientPlugin(eg.PluginBase):
         # make an action for each command
         for command_file_path in command_file_paths:
             with open(command_file_path) as command_file:
-                data = command_file.read()
-        
-                deviceInfo = json.loads(data)
+                deviceInfo = json.load(command_file)
                 
                 self._add_group(self, deviceInfo['id'], deviceInfo)
-                
-#                 group = self.AddGroup(deviceInfo['name'], "Commands for this device")
-#                 for cur_command in deviceInfo['commands']:
-#                     class Action(DataDrivenAction):
-#                         command = cur_command
-#                         deviceId = deviceInfo['id']
-# 
-#                         name = cur_command['name']
-#                         description = cur_command['description']
-#                     Action.__name__ = str(cur_command['id'])
-#                     group.AddAction(Action)   
-                    #group.AddAction(makeCommandAction(deviceInfo['id'], cur_command))
     
     def _add_group(self, parent, device_id, group):
         new_group = parent.AddGroup(group['name'], "Description")
@@ -84,17 +69,15 @@ class ControlClientPlugin(eg.PluginBase):
         self.controlClient = ControlClient(host, port)
     
     def Configure(self, host="127.0.0.1", port=8080):
-        text = self.text
-
         panel = eg.ConfigPanel()
         hostCtrl = panel.TextCtrl(host)
         portCtrl = panel.SpinIntCtrl(port, max=65535)
 
-        st1 = panel.StaticText(text.host)
-        st2 = panel.StaticText(text.port)
+        st1 = panel.StaticText(Text.host)
+        st2 = panel.StaticText(Text.port)
         eg.EqualizeWidths((st1, st2))
         tcpBox = panel.BoxedGroup(
-            text.tcpBox,
+            Text.tcpBox,
             (st1, hostCtrl),
             (st2, portCtrl),
         )
@@ -113,7 +96,7 @@ class DataDrivenAction(eg.ActionBase):
     def __call__(self, *args):
 
         command_args = self.command['command']['args']       
-        format = self.command['command']['format']
+        command_format = self.command['command']['format']
         
         assert len(args) == len(command_args)
 
@@ -121,7 +104,7 @@ class DataDrivenAction(eg.ActionBase):
         for i in range(len(command_args)):
             format_args[command_args[i]['id']] = args[i]
         
-        command_text = format.format(**format_args)
+        command_text = command_format.format(**format_args)
         
         result = self.plugin.controlClient.sendCommand(self.deviceId, command_text)
         print "Result of command {command} to device {device} was {result}".format(device=self.deviceId, command=command_text, result=result)
@@ -171,7 +154,7 @@ class DataDrivenAction(eg.ActionBase):
                 
             eg.EqualizeWidths([x[0] for x in examples])
                 
-            exampleBox = panel.BoxedGroup("Examples", *examples)
+            exampleBox = panel.BoxedGroup(Text.examples, *examples)
             panel.sizer.Add(exampleBox, 0, wx.EXPAND)
 
         while panel.Affirmed():
