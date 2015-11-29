@@ -7,7 +7,7 @@ import sys
 root = os.path.dirname(os.path.realpath(__file__))
 
 def usage():
-    print "Usage: {file} <server|client|eg>".format(file=__file__)
+    print "Usage: {file} <server|client|eg>".format(file=os.path.basename(__file__))
     exit()
 
 if len(sys.argv) < 2:
@@ -16,24 +16,6 @@ if len(sys.argv) < 2:
 build_type = sys.argv[1]
 
 out_path = os.path.join(root, 'out', build_type)
-
-server_files = [
-    'server.py',
-    'lib.py',
-    'web.py',
-    'etc',
-]
-
-client_files = [
-    'deviceClient.py',
-    'lib.py',
-    'devices',
-]
-
-eg_files = [
-    'controlClient.py',
-    ('eg_plugin/__init__.py', '__init__.py'),
-]
 
 def ignore(dir, files):
     result = filter(lambda x: x in ('.git') or x.endswith('.pyc'), files)
@@ -69,10 +51,29 @@ def make_build(file_list):
             shutil.copy(source_file_path, dest_file_path)
 
 if build_type == 'server':
+    server_files = [
+        'server.py',
+        'lib.py',
+        'web.py',
+        'etc',
+    ]
+
     make_build(server_files)
 elif build_type == 'client':
+
+    client_files = [
+        'deviceClient.py',
+        'lib.py',
+        'devices',
+    ]
+
     make_build(client_files)
 elif build_type == 'eg':
+    eg_files = [
+        'controlClient.py',
+        ('eg_plugin/__init__.py', '__init__.py'),
+    ]
+    
     for file_path in glob.glob('etc/*/frontend/device.json'):
         with open(file_path) as file_obj:
             text = file_obj.read() 
