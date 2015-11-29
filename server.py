@@ -1,51 +1,37 @@
 import json
+import os
+import sys
+
 from lib import DeviceServerFactory
 from web import CommandServer
 
 from twisted.web import server
 from twisted.internet import reactor, endpoints
 
-macroJson = """
-{
-    "startTheatre": {
-        "name": "Prepare theatre",
-        "commands": [
-            {"device": "epson5030ub", "command": "PWR ON"},
-            {"device": "lutrongrx3000", "command": ":A11"}
-        ]
-    },
-    "enable3D": {
-        "name": "Enable 3D",
-        "commands": [
-            {"device": "epson5030ub", "command": "KEY AA"},
-            {"device": "epson5030ub", "command": "KEY 59"},
-            {"device": "epson5030ub", "command": "KEY 49"},
-            {"device": "epson5030ub", "command": "KEY 3C"},
-            {"device": "epson5030ub", "command": "KEY 9F"}
-        ]
-    },
-    "disable3D": {
-        "name": "Disable 3D",
-        "commands": [
-            {"device": "epson5030ub", "command": "KEY AA"},
-            {"device": "epson5030ub", "command": "KEY 58"},
-            {"device": "epson5030ub", "command": "KEY 49"},
-            {"device": "epson5030ub", "command": "KEY 3C"},
-            {"device": "epson5030ub", "command": "KEY 9F"}
-        ]
-    },
-    "cycleLights": {
-        "name": "Cycle the lights",
-        "commands": [
-            {"device": "lutrongrx3000", "command": ":A11"},
-            {"device": "DELAY", "command": "3"},
-            {"device": "lutrongrx3000", "command": ":A01"}
-        ]
-    }
-}
-"""
+root = os.path.dirname(os.path.realpath(__file__))
 
-macros = json.loads(macroJson)
+def usage():
+    print "Usage: {file} [macro file]".format(file=os.path.basename(__file__))
+    exit()
+
+macros = {}
+
+if len(sys.argv) > 2 or sys.argv[1] in ('--help', '-h', '/?'):
+    usage()
+elif len(sys.argv) == 2:
+    macro_file_name = sys.argv[1]
+    macro_file_path = os.path.join(root, macro_file_name)
+    
+    if not os.path.isfile(macro_file_path):
+        print "Invalid macro file provided: ", macro_file_name
+        exit()
+
+    with open(macro_file_path) as macro_file:
+        macros = json.load(macro_file)
+    
+    print "Loaded the following macros from", macro_file_name
+    for macro in macros:
+        print macro
 
 # start up the device server
 factory = DeviceServerFactory()
