@@ -237,8 +237,7 @@ class MainPageRenderer(Element):
                 try:
                     device_path = FilePath('etc/{device}/frontend/device.json'.format(device=device))
                     with device_path.open() as device_file:
-                        data = device_file.read()
-                        device_data = json.loads(data)
+                        device_data = json.load(device_file)
                         deviceName = device_data['name'] 
                 except Exception as e:
                     deviceName = device
