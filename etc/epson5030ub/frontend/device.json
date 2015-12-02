@@ -94,6 +94,398 @@
                 }
             },
             {
+                "name": "IR Remote Buttons",
+                "commands": [
+                    {
+                        "id": "irPowerOn",
+                        "name": "Power On",
+                        "description": "Turns the power on",
+                        "command": {
+                            "format": "KEY 3B",
+                            "args": []
+                        }
+                    },
+                    {
+                        "id": "irPowerOff",
+                        "name": "Power Off",
+                        "description": "Turns the power off",
+                        "command": {
+                            "format": "KEY 6C",
+                            "args": []
+                        }
+                    },
+                    {
+                        "id": "irSourceComponent",
+                        "name": "Component",
+                        "description": "Source: Component",
+                        "command": {
+                            "format": "KEY 43",
+                            "args": []
+                        }
+                    },
+                    {
+                        "id": "irSourcePC",
+                        "name": "PC",
+                        "description": "Source: PC",
+                        "command": {
+                            "format": "KEY 44",
+                            "args": []
+                        }
+                    },
+                    {
+                        "id": "irSourceVideo",
+                        "name": "Video",
+                        "description": "Source: Video",
+                        "command": {
+                            "format": "KEY 46",
+                            "args": []
+                        }
+                    },
+                    {
+                        "id": "irSourceHDMI2",
+                        "name": "HDMI2",
+                        "description": "Source: HDMI2",
+                        "command": {
+                            "format": "KEY 40",
+                            "args": []
+                        }
+                    },
+                    {
+                        "id": "irSourceHDMI1",
+                        "name": "HDMI1",
+                        "description": "Source: HDMI1",
+                        "command": {
+                            "format": "KEY 4D",
+                            "args": []
+                        }
+                    },
+                    {
+                        "id": "irPlay",
+                        "name": "Play",
+                        "description": "Play",
+                        "command": {
+                            "format": "KEY D1",
+                            "args": []
+                        }
+                    },
+                    {
+                        "id": "irStop",
+                        "name": "Stop",
+                        "description": "Stop",
+                        "command": {
+                            "format": "KEY D2",
+                            "args": []
+                        }
+                    },
+                    {
+                        "id": "irPause",
+                        "name": "Pause",
+                        "description": "Pause",
+                        "command": {
+                            "format": "KEY D3",
+                            "args": []
+                        }
+                    },
+                    {
+                        "id": "irRewind",
+                        "name": "Rewind",
+                        "description": "Rewind",
+                        "command": {
+                            "format": "KEY D4",
+                            "args": []
+                        }
+                    },
+                    {
+                        "id": "irFastForward",
+                        "name": "Fast Forward",
+                        "description": "Fast Forward",
+                        "command": {
+                            "format": "KEY D5",
+                            "args": []
+                        }
+                    },
+                    {
+                        "id": "irBackward",
+                        "name": "Backward",
+                        "description": "Skip Backward",
+                        "command": {
+                            "format": "KEY D6",
+                            "args": []
+                        }
+                    },
+                    {
+                        "id": "irForward",
+                        "name": "Forward",
+                        "description": "Skip Forward",
+                        "command": {
+                            "format": "KEY D7",
+                            "args": []
+                        }
+                    },
+                    {
+                        "id": "irMute",
+                        "name": "Mute",
+                        "description": "Mute",
+                        "command": {
+                            "format": "KEY D8",
+                            "args": []
+                        }
+                    },
+                    {
+                        "id": "irLinkMenu",
+                        "name": "Link Menu",
+                        "description": "Link Menu",
+                        "command": {
+                            "format": "KEY D9",
+                            "args": []
+                        }
+                    },
+                    {
+                        "id": "irHdmiLink",
+                        "name": "HDMI Link",
+                        "description": "HDMI Link",
+                        "command": {
+                            "format": "KEY 8C",
+                            "args": []
+                        }
+                    },
+                    {
+                        "id": "irVolumeDown",
+                        "name": "Volume Down",
+                        "description": "Volume Down",
+                        "command": {
+                            "format": "KEY 56",
+                            "args": []
+                        }
+                    },
+                    {
+                        "id": "irVolumeUp",
+                        "name": "Volume Up",
+                        "description": "Volume Up",
+                        "command": {
+                            "format": "KEY57",
+                            "args": []
+                        }
+                    },
+                    {
+                        "id": "irMenu",
+                        "name": "Menu",
+                        "description": "Display the menu",
+                        "command": {
+                            "format": "KEY 3C",
+                            "args": []
+                        }
+                    },
+                    {
+                        "id": "irEsc",
+                        "name": "Escape",
+                        "description": "Escape",
+                        "command": {
+                            "format": "KEY 3D",
+                            "args": []
+                        }
+                    },
+                    {
+                        "id": "irEnter",
+                        "name": "Enter",
+                        "description": "Enter",
+                        "command": {
+                            "format": "KEY 49",
+                            "args": []
+                        }
+                    },
+                    {
+                        "id": "irPointerUp",
+                        "name": "Pointer Up",
+                        "description": "Moves the pointer up",
+                        "command": {
+                            "format": "KEY 58",
+                            "args": []
+                        }
+                    },
+                    {
+                        "id": "irPointerDown",
+                        "name": "Pointer Down",
+                        "description": "Moves the pointer down",
+                        "command": {
+                            "format": "KEY 59",
+                            "args": []
+                        }
+                    },
+                    {
+                        "id": "irPointerLeft",
+                        "name": "Pointer Left",
+                        "description": "Moves the pointer left",
+                        "command": {
+                            "format": "KEY 5A",
+                            "args": []
+                        }
+                    },
+                    {
+                        "id": "irPointerRight",
+                        "name": "Pointer Right",
+                        "description": "Moves the pointer right",
+                        "command": {
+                            "format": "KEY 5B",
+                            "args": []
+                        }
+                    },
+                    {
+                        "id": "ir2D3D",
+                        "name": "2D/3D",
+                        "description": "Toggle 2D/3D mode",
+                        "command": {
+                            "format": "KEY 9D",
+                            "args": []
+                        }
+                    },
+                    {
+                        "id": "ir2D",
+                        "name": "2D",
+                        "description": "Set 2D mode",
+                        "command": {
+                            "format": "KEY 9E",
+                            "args": []
+                        }
+                    },
+                    {
+                        "id": "ir3D",
+                        "name": "3D",
+                        "description": "Set 3D mode",
+                        "command": {
+                            "format": "KEY 9F",
+                            "args": []
+                        }
+                    },
+                    {
+                        "id": "irColorMode",
+                        "name": "Color Mode",
+                        "description": "Color Mode",
+                        "command": {
+                            "format": "KEY 3F",
+                            "args": []
+                        }
+                    },
+                    {
+                        "id": "irSuperRes",
+                        "name": "Super Res",
+                        "description": "Super Resolution",
+                        "command": {
+                            "format": "KEY 8C",
+                            "args": []
+                        }
+                    },
+                    {
+                        "id": "irAutoIris",
+                        "name": "Auto Iris",
+                        "description": "Toggle Auto Iris",
+                        "command": {
+                            "format": "KEY A5",
+                            "args": []
+                        }
+                    },
+                    {
+                        "id": "irRGBCMY",
+                        "name": "RGBCMY",
+                        "description": "RGBCMY",
+                        "command": {
+                            "format": "KEY 89",
+                            "args": []
+                        }
+                    },
+                    {
+                        "id": "irAspect",
+                        "name": "Aspect",
+                        "description": "Aspect Ratio",
+                        "command": {
+                            "format": "KEY 4D",
+                            "args": []
+                        }
+                    },
+                    {
+                        "id": "irAspectNormal",
+                        "name": "Aspect: Normal",
+                        "description": "Aspect Ratio: Normal",
+                        "command": {
+                            "format": "KEY 9A",
+                            "args": []
+                        }
+                    },
+                    {
+                        "id": "irAspectAnamorphic",
+                        "name": "Aspect: Anamorphic",
+                        "description": "Aspect: Anamorphic",
+                        "command": {
+                            "format": "KEY 9B",
+                            "args": []
+                        }
+                    },
+                    {
+                        "id": "irAspectHSqueeze",
+                        "name": "Aspect H Squeeze",
+                        "description": "Aspect: H Squeeze",
+                        "command": {
+                            "format": "KEY 9C",
+                            "args": []
+                        }
+                    },
+                    {
+                        "id": "irUser",
+                        "name": "User",
+                        "description": "User",
+                        "command": {
+                            "format": "KEY 84",
+                            "args": []
+                        }
+                    },
+                    {
+                        "id": "irMemory",
+                        "name": "Memory",
+                        "description": "Memory",
+                        "command": {
+                            "format": "KEY 61",
+                            "args": []
+                        }
+                    },
+                    {
+                        "id": "irFrameInt",
+                        "name": "Frame Int",
+                        "description": "Frame Int",
+                        "command": {
+                            "format": "KEY 8D",
+                            "args": []
+                        }
+                    },
+                    {
+                        "id": "irPattern",
+                        "name": "Pattern",
+                        "description": "Pattern",
+                        "command": {
+                            "format": "KEY 4B",
+                            "args": []
+                        }
+                    },
+                    {
+                        "id": "ir3DFormat",
+                        "name": "3D Format",
+                        "description": "3D Format",
+                        "command": {
+                            "format": "KEY AA",
+                            "args": []
+                        }
+                    },
+                    {
+                        "id": "irPInP",
+                        "name": "P-in-P",
+                        "description": "Picture in picture",
+                        "command": {
+                            "format": "KEY 27",
+                            "args": []
+                        }
+                    }
+                ]
+            },
+            {
                 "name": "Picture Settings",
                 "commands": [
                     {
