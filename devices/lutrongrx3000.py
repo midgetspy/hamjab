@@ -1,9 +1,6 @@
-from twisted.internet import reactor
+from device_lib import SerialDevice
 
-from lib import QueuedLineSender
-from twisted.internet.serialport import SerialPort    
-
-class Device(QueuedLineSender):
+class Device(SerialDevice):
     """
     A protocol which can send commands to a Lutron GRX-3100/3500 through a GRX-RS232, GRX-AV,
     GRX-PRG, GRX-CI-RS232, etc.
@@ -18,8 +15,5 @@ class Device(QueuedLineSender):
         if line == '':
             return
         
-        QueuedLineSender.lineReceived(self, line)
-    
-    def startConnection(self):
-        SerialPort(self, 'COM3', reactor)
+        SerialDevice.lineReceived(self, line)
 
