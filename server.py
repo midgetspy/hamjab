@@ -16,7 +16,7 @@ def usage():
 
 macros = {}
 
-if len(sys.argv) > 2 or sys.argv[1] in ('--help', '-h', '/?'):
+if len(sys.argv) > 2 or (len(sys.argv) == 2 and sys.argv[1] in ('--help', '-h', '/?')):
     usage()
 elif len(sys.argv) == 2:
     macro_file_name = sys.argv[1]
