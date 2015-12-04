@@ -22,6 +22,8 @@ SUCCESS = 'SUCCESS'
 DELAY = 'DELAY'
 DISABLED = 'DISABLED'
 
+DEFAULT_DEVICE_SERVER_PORT = 8007
+
 ################################################### common code
 @provider(ILogObserver)
 def printToConsole(event):
