@@ -1,0 +1,1181 @@
+{
+    "id": "sony_vpl_hw30es",
+    "name": "Sony VPL-HW40ES",
+    "commands":
+        [
+            {
+                "name": "Picture",
+                "commands": [{
+                        "name": "Advanced Iris",
+                        "command": {
+                            "format": "001D{get_set}00{arg}",
+                            "args": [
+                                {
+                                    "id": "get_set",
+                                    "name": "Get or set",
+                                    "description": "00: Set value\n01: Get value"
+                                },
+                                {
+                                    "id": "arg",
+                                    "name": "Argument",
+                                    "description": "00: Off\n01: Manual\n02: Auto1\n03: Auto2"
+                                }
+                            ]
+                        }
+                    },
+                    {
+                        "name": "Real Color Processing",
+                        "command": {
+                            "format": "001E{get_set}00{arg}",
+                            "args": [
+                                {
+                                    "id": "get_set",
+                                    "name": "Get or set",
+                                    "description": "00: Set value\n01: Get value"
+                                },
+                                {
+                                    "id": "arg",
+                                    "name": "Argument",
+                                    "description": "00: Off\n01: User1\n02: User2\n03: User3"
+                                }
+                            ]
+                        }
+                    },
+                    {
+                        "name": "Film Mode",
+                        "command": {
+                            "format": "001F{get_set}00{arg}",
+                            "args": [
+                                {
+                                    "id": "get_set",
+                                    "name": "Get or set",
+                                    "description": "00: Set value\n01: Get value"
+                                },
+                                {
+                                    "id": "arg",
+                                    "name": "Argument",
+                                    "description": "00: Off\n01: Auto1\n02: Auto2"
+                                }
+                            ]
+                        }
+                    },
+                    {
+                        "name": "Gamma Correction",
+                        "command": {
+                            "format": "0022{get_set}00{arg}",
+                            "args": [
+                                {
+                                    "id": "get_set",
+                                    "name": "Get or set",
+                                    "description": "00: Set value\n01: Get value"
+                                },
+                                {
+                                    "id": "arg",
+                                    "name": "Argument",
+                                    "description": "00: Off\n01: Gamma 1\n02: Gamma 2\n03: Gamma 3\n04: Gamma 4\n05: Gamma 5\n06: Gamma 6\n07: Gamma 7\n08: Gamma 8"
+                                }
+                            ]
+                        }
+                    },
+                    {
+                        "name": "Noise Reduction",
+                        "command": {
+                            "format": "0025{get_set}00{arg}",
+                            "args": [
+                                {
+                                    "id": "get_set",
+                                    "name": "Get or set",
+                                    "description": "00: Set value\n01: Get value"
+                                },
+                                {
+                                    "id": "arg",
+                                    "name": "Argument",
+                                    "description": "00: Off\n01: Low\n02: Middle\n03: High"
+                                }
+                            ]
+                        }
+                    },
+                    {
+                        "name": "Block Noise Reduction",
+                        "command": {
+                            "format": "0026{get_set}00{arg}",
+                            "args": [
+                                {
+                                    "id": "get_set",
+                                    "name": "Get or set",
+                                    "description": "00: Set value\n01: Get value"
+                                },
+                                {
+                                    "id": "arg",
+                                    "name": "Argument",
+                                    "description": "00: Off\n01: Low\n02: Middle\n03: High"
+                                }
+                            ]
+                        }
+                    },
+                    {
+                        "name": "Mosquito Noise Reduction",
+                        "command": {
+                            "format": "0027{get_set}00{arg}",
+                            "args": [
+                                {
+                                    "id": "get_set",
+                                    "name": "Get or set",
+                                    "description": "00: Set value\n01: Get value"
+                                },
+                                {
+                                    "id": "arg",
+                                    "name": "Argument",
+                                    "description": "00: Off\n01: Low\n02: Middle\n03: High"
+                                }
+                            ]
+                        }
+                    },
+                    {
+                        "name": "White Level Adjustment",
+                        "command": {
+                            "format": "0028{get_set}{value}",
+                            "args": [
+                                {
+                                    "id": "get_set",
+                                    "name": "Get or set",
+                                    "description": "00: Set value\n01: Get value"
+                                },
+                                {
+                                    "id": "value",
+                                    "name": "White Level Value",
+                                    "description": "0xFFFD-0x0003 (-3 to 3)"
+                                }
+                            ]
+                        }
+                    },
+                    {
+                        "name": "Color Space",
+                        "command": {
+                            "format": "003B{get_set}00{arg}",
+                            "args": [
+                                {
+                                    "id": "get_set",
+                                    "name": "Get or set",
+                                    "description": "00: Set value\n01: Get value"
+                                },
+                                {
+                                    "id": "arg",
+                                    "name": "Argument",
+                                    "description": "00: Normal\n01: Wide1\n02: Wide2\n03: Wide3"
+                                }
+                            ]
+                        }
+                    },
+                    {
+                        "name": "User Gain Red",
+                        "command": {
+                            "format": "0050{get_set}{value}",
+                            "args": [
+                                {
+                                    "id": "get_set",
+                                    "name": "Get or set",
+                                    "description": "00: Set value\n01: Get value"
+                                },
+                                {
+                                    "id": "value",
+                                    "name": "User Gain Red Value",
+                                    "description": "0xFFE2-0x001E (-30 to 30)"
+                                }
+                            ]
+                        }
+                    },
+                    {
+                        "name": "User Gain Green",
+                        "command": {
+                            "format": "0051{get_set}{value}",
+                            "args": [
+                                {
+                                    "id": "get_set",
+                                    "name": "Get or set",
+                                    "description": "00: Set value\n01: Get value"
+                                },
+                                {
+                                    "id": "value",
+                                    "name": "User Gain Green Value",
+                                    "description": "0xFFE2-0x001E (-30 to 30)"
+                                }
+                            ]
+                        }
+                    },
+                    {
+                        "name": "User Gain Blue",
+                        "command": {
+                            "format": "0052{get_set}{value}",
+                            "args": [
+                                {
+                                    "id": "get_set",
+                                    "name": "Get or set",
+                                    "description": "00: Set value\n01: Get value"
+                                },
+                                {
+                                    "id": "value",
+                                    "name": "User Gain Blue Value",
+                                    "description": "0xFFE2-0x001E (-30 to 30)"
+                                }
+                            ]
+                        }
+                    },
+                    {
+                        "name": "User Bias Red",
+                        "command": {
+                            "format": "0053{get_set}{value}",
+                            "args": [
+                                {
+                                    "id": "get_set",
+                                    "name": "Get or set",
+                                    "description": "00: Set value\n01: Get value"
+                                },
+                                {
+                                    "id": "value",
+                                    "name": "User Bias Red Value",
+                                    "description": "0xFFE2-0x001E (-30 to 30)"
+                                }
+                            ]
+                        }
+                    },
+                    {
+                        "name": "User Bias Green",
+                        "command": {
+                            "format": "0054{get_set}{value}",
+                            "args": [
+                                {
+                                    "id": "get_set",
+                                    "name": "Get or set",
+                                    "description": "00: Set value\n01: Get value"
+                                },
+                                {
+                                    "id": "value",
+                                    "name": "User Bias Green Value",
+                                    "description": "0xFFE2-0x001E (-30 to 30)"
+                                }
+                            ]
+                        }
+                    },
+                    {
+                        "name": "User Bias Blue",
+                        "command": {
+                            "format": "0055{get_set}{value}",
+                            "args": [
+                                {
+                                    "id": "get_set",
+                                    "name": "Get or set",
+                                    "description": "00: Set value\n01: Get value"
+                                },
+                                {
+                                    "id": "value",
+                                    "name": "User Bias Blue Value",
+                                    "description": "0xFFE2-0x001E (-30 to 30)"
+                                }
+                            ]
+                        }
+                    },
+                    {
+                        "name": "Iris Sensitivity",
+                        "command": {
+                            "format": "0056{get_set}00{arg}",
+                            "args": [
+                                {
+                                    "id": "get_set",
+                                    "name": "Get or set",
+                                    "description": "00: Set value\n01: Get value"
+                                },
+                                {
+                                    "id": "arg",
+                                    "name": "Argument",
+                                    "description": "00: Recommended\n01: Fast\n02: Slow"
+                                }
+                            ]
+                        }
+                    },
+                    {
+                        "name": "Iris Manual",
+                        "command": {
+                            "format": "0057{get_set}00{value}",
+                            "args": [
+                                {
+                                    "id": "get_set",
+                                    "name": "Get or set",
+                                    "description": "00: Set value\n01: Get value"
+                                },
+                                {
+                                    "id": "value",
+                                    "name": "Manual iris value",
+                                    "description": "0x00-0x64 (0-100)"
+                                }
+                            ]
+                        }
+                    },
+                    {
+                        "name": "Motion Enhancer",
+                        "command": {
+                            "format": "0059{get_set}00{arg}",
+                            "args": [
+                                {
+                                    "id": "get_set",
+                                    "name": "Get or set",
+                                    "description": "00: Set value\n01: Get value"
+                                },
+                                {
+                                    "id": "arg",
+                                    "name": "Argument",
+                                    "description": "00: Off\n01: Low\n02: High"
+                                }
+                            ]
+                        }
+                    },
+                    {
+                        "name": "xvColor",
+                        "command": {
+                            "format": "005A{get_set}00{arg}",
+                            "args": [
+                                {
+                                    "id": "get_set",
+                                    "name": "Get or set",
+                                    "description": "00: Set value\n01: Get value"
+                                },
+                                {
+                                    "id": "arg",
+                                    "name": "Argument",
+                                    "description": "00: Off\n01: On"
+                                }
+                            ]
+                        }
+                    }
+                ]
+            },
+            {
+                "name": "Screen",
+                "commands": [
+                    {
+                        "name": "Wide Mode",
+                        "command": {
+                            "format": "0020{get_set}00{arg}",
+                            "args": [
+                                {
+                                    "id": "get_set",
+                                    "name": "Get or set",
+                                    "description": "00: Set value\n01: Get value"
+                                },
+                                {
+                                    "id": "arg",
+                                    "name": "Argument",
+                                    "description": "00: Full\n01: Normal\n02: Wide Zoom\n03: Zoom\n07: Full\n08: Full2"
+                                }
+                            ]
+                        }
+                    },
+                    {
+                        "name": "Over Scan",
+                        "command": {
+                            "format": "0023{get_set}00{arg}",
+                            "args": [
+                                {
+                                    "id": "get_set",
+                                    "name": "Get or set",
+                                    "description": "00: Set value\n01: Get value"
+                                },
+                                {
+                                    "id": "arg",
+                                    "name": "Argument",
+                                    "description": "00: Off\n01: On"
+                                }
+                            ]
+                        }
+                    },
+                    {
+                        "name": "Screen Area",
+                        "command": {
+                            "format": "0024{get_set}00{arg}",
+                            "args": [
+                                {
+                                    "id": "get_set",
+                                    "name": "Get or set",
+                                    "description": "00: Set value\n01: Get value"
+                                },
+                                {
+                                    "id": "arg",
+                                    "name": "Argument",
+                                    "description": "00: Full\n01: Thorough"
+                                }
+                            ]
+                        }
+                    }
+                ]
+            },
+            {
+                "name": "Setup",
+                "commands": [
+                    {
+                        "name": "Input",
+                        "command": {
+                            "format": "0001{get_set}00{arg}",
+                            "args": [
+                                {
+                                    "id": "get_set",
+                                    "name": "Get or set",
+                                    "description": "00: Set value\n01: Get value"
+                                },
+                                {
+                                    "id": "arg",
+                                    "name": "Argument",
+                                    "description": "02: Input A\n03: Component\n04: HDMI1\n05: HDMI2"
+                                }
+                            ]
+                        }
+                    },
+                    {
+                        "name": "Picture Muting",
+                        "command": {
+                            "format": "0030{get_set}00{arg}",
+                            "args": [
+                                {
+                                    "id": "get_set",
+                                    "name": "Get or set",
+                                    "description": "00: Set value\n01: Get value"
+                                },
+                                {
+                                    "id": "arg",
+                                    "name": "Argument",
+                                    "description": "00: Off\n01: On"
+                                }
+                            ]
+                        }
+                    },
+                    {
+                        "name": "Input A Signal Select",
+                        "command": {
+                            "format": "0032{get_set}00{arg}",
+                            "args": [
+                                {
+                                    "id": "get_set",
+                                    "name": "Get or set",
+                                    "description": "00: Set value\n01: Get value"
+                                },
+                                {
+                                    "id": "arg",
+                                    "name": "Argument",
+                                    "description": "00: Auto\n01: Computer\n02: Component\n03: Video GBR"
+                                }
+                            ]
+                        }
+                    }
+                ]
+            },
+            {
+                "name": "3D",
+                "commands": [
+                    {
+                        "name": "2D-3D Display Select",
+                        "command": {
+                            "format": "0060{get_set}00{arg}",
+                            "args": [
+                                {
+                                    "id": "get_set",
+                                    "name": "Get or set",
+                                    "description": "00: Set value\n01: Get value"
+                                },
+                                {
+                                    "id": "arg",
+                                    "name": "Argument",
+                                    "description": "00: Auto\n01: 3D\n02: 2D"
+                                }
+                            ]
+                        }
+                    },
+                    {
+                        "name": "3D Format",
+                        "command": {
+                            "format": "0061{get_set}00{arg}",
+                            "args": [
+                                {
+                                    "id": "get_set",
+                                    "name": "Get or set",
+                                    "description": "00: Set value\n01: Get value"
+                                },
+                                {
+                                    "id": "arg",
+                                    "name": "Argument",
+                                    "description": "00: Simulated 3D\n01: Side-by-Side\n02: Over-Under"
+                                }
+                            ]
+                        }
+                    },
+                    {
+                        "name": "3D Depth Adjust",
+                        "command": {
+                            "format": "0062{get_set}{value}",
+                            "args": [
+                                {
+                                    "id": "get_set",
+                                    "name": "Get or set",
+                                    "description": "00: Set value\n01: Get value"
+                                },
+                                {
+                                    "id": "value",
+                                    "name": "Depth Value",
+                                    "description": "0xFFFE-0x0002 (-2 to 2)"
+                                }
+                            ]
+                        }
+                    },
+                    {
+                        "name": "Simulated 3D Effect",
+                        "command": {
+                            "format": "0063{get_set}00{arg}",
+                            "args": [
+                                {
+                                    "id": "get_set",
+                                    "name": "Get or set",
+                                    "description": "00: Set value\n01: Get value"
+                                },
+                                {
+                                    "id": "arg",
+                                    "name": "Argument",
+                                    "description": "00: High\n01: Middle\n02: Low"
+                                }
+                            ]
+                        }
+                    },
+                    {
+                        "name": "3D Glasses Brightness",
+                        "command": {
+                            "format": "0065{get_set}00{value}",
+                            "args": [
+                                {
+                                    "id": "get_set",
+                                    "name": "Get or set",
+                                    "description": "00: Set value\n01: Get value"
+                                },
+                                {
+                                    "id": "value",
+                                    "name": "Depth Value",
+                                    "description": "0x00-0x04 (0 to 4)"
+                                }
+                            ]
+                        }
+                    }
+                ]
+            },
+            {
+                "name": "Get Status",
+                "commands": [
+                    {
+                        "name": "Error Status",
+                        "command": {
+                            "format": "0101010000",
+                            "args": []
+                        },
+                        "response": {
+                            "description": "0x0000: No Error\n0x0001: Lamp Error\n0x0002: Fan Error\n0x0004: Cover Error\n0x0008: Temp Error\n0x0010: D5V Error\n0x0020: Power Error\n0x0040: Temp Warning\n0x0080: NVM Data Error"
+                        }
+                    },
+                    {
+                        "name": "Power Status",
+                        "command": {
+                            "format": "0102010000",
+                            "args": []
+                        },
+                        "response": {
+                            "description": "0x0000: Standby\n0x0001: Start Up\n0x0002: Startup Lamp\n0x0003: Power On\n0x0004: Cooling1\n0x0005: Cooling2\n0x0006: Saving Cooling1\n0x0007: Saving Cooling2\n0x0008: Saving Standby"
+                        }
+                    },
+                    {
+                        "name": "Lamp Timer",
+                        "command": {
+                            "format": "0113010000",
+                            "args": []
+                        },
+                        "response": {
+                            "description": "Lamp use (in hours): 0x0000-0xFFFF"
+                        }
+                    },
+                    {
+                        "name": "Error Status (2)",
+                        "command": {
+                            "format": "0125010000",
+                            "args": []
+                        },
+                        "response": {
+                            "description": "0x0000: No Error\n0x0020: Highland Warning"
+                        }
+                    }
+                ]
+            },
+            {
+                "name": "IR Commands",
+                "commands": [
+                    {
+                        "name": "Picture",
+                        "commands": [
+                            {
+                                "name": "Motion Enhancer Toggle",
+                                "command": {
+                                    "format": "1705000000",
+                                    "args": []
+                                }
+                            },
+                            {
+                                "name": "Black Level Toggle",
+                                "command": {
+                                    "format": "1707000000",
+                                    "args": []
+                                }
+                            },
+                            {
+                                "name": "Contrast +High",
+                                "command": {
+                                    "format": "1718000000",
+                                    "args": []
+                                }
+                            },
+                            {
+                                "name": "Contrast -Low",
+                                "command": {
+                                    "format": "1719000000",
+                                    "args": []
+                                }
+                            },
+                            {
+                                "name": "Color +High",
+                                "command": {
+                                    "format": "171A000000",
+                                    "args": []
+                                }
+                            },
+                            {
+                                "name": "Color -Low",
+                                "command": {
+                                    "format": "171B000000",
+                                    "args": []
+                                }
+                            },
+                            {
+                                "name": "Brightness +Bright",
+                                "command": {
+                                    "format": "171E000000",
+                                    "args": []
+                                }
+                            },
+                            {
+                                "name": "Brightness -Dark",
+                                "command": {
+                                    "format": "171F000000",
+                                    "args": []
+                                }
+                            },
+                            {
+                                "name": "Hue +Greenish",
+                                "command": {
+                                    "format": "1720000000",
+                                    "args": []
+                                }
+                            },
+                            {
+                                "name": "Hue -Purplish",
+                                "command": {
+                                    "format": "1721000000",
+                                    "args": []
+                                }
+                            },
+                            {
+                                "name": "Sharpness +Sharp",
+                                "command": {
+                                    "format": "1722000000",
+                                    "args": []
+                                }
+                            },
+                            {
+                                "name": "Sharpness -Soft",
+                                "command": {
+                                    "format": "1723000000",
+                                    "args": []
+                                }
+                            },
+                            {
+                                "name": "RCP",
+                                "command": {
+                                    "format": "1908000000",
+                                    "args": []
+                                }
+                            },
+                            {
+                                "name": "Adjust Picture Toggle",
+                                "command": {
+                                    "format": "1909000000",
+                                    "args": []
+                                }
+                            },
+                            {
+                                "name": "Color Space Toggle",
+                                "command": {
+                                    "format": "194B000000",
+                                    "args": []
+                                }
+                            },
+                            {
+                                "name": "Picture Mode Dynamic",
+                                "command": {
+                                    "format": "1951000000",
+                                    "args": []
+                                }
+                            },
+                            {
+                                "name": "Picture Mode Standard",
+                                "command": {
+                                    "format": "1952000000",
+                                    "args": []
+                                }
+                            },
+                            {
+                                "name": "Picture Mode Cinema1",
+                                "command": {
+                                    "format": "1953000000",
+                                    "args": []
+                                }
+                            },
+                            {
+                                "name": "Picture Mode Cinema2",
+                                "command": {
+                                    "format": "1954000000",
+                                    "args": []
+                                }
+                            },
+                            {
+                                "name": "Picture Mode Cinema3",
+                                "command": {
+                                    "format": "1955000000",
+                                    "args": []
+                                }
+                            },
+                            {
+                                "name": "Picture Mode Game",
+                                "command": {
+                                    "format": "1956000000",
+                                    "args": []
+                                }
+                            },
+                            {
+                                "name": "Picture Mode Photo",
+                                "command": {
+                                    "format": "1957000000",
+                                    "args": []
+                                }
+                            },
+                            {
+                                "name": "Picture Mode User1",
+                                "command": {
+                                    "format": "1958000000",
+                                    "args": []
+                                }
+                            },
+                            {
+                                "name": "Picture Mode User2",
+                                "command": {
+                                    "format": "1959000000",
+                                    "args": []
+                                }
+                            },
+                            {
+                                "name": "Picture Mode Toggle",
+                                "command": {
+                                    "format": "195B000000",
+                                    "args": []
+                                }
+                            },
+                            {
+                                "name": "Color Temp Toggle",
+                                "command": {
+                                    "format": "195C000000",
+                                    "args": []
+                                }
+                            },
+                            {
+                                "name": "Gamma Collection Toggle",
+                                "command": {
+                                    "format": "195E000000",
+                                    "args": []
+                                }
+                            },
+                            {
+                                "name": "Iris Mode Toggle",
+                                "command": {
+                                    "format": "195F000000",
+                                    "args": []
+                                }
+                            }
+                        ]
+                    },
+                    {
+                        "name": "Screen",
+                        "commands": [
+                            {
+                                "name": "Pitch",
+                                "command": {
+                                    "format": "1747000000",
+                                    "args": []
+                                }
+                            },
+                            {
+                                "name": "Shift",
+                                "command": {
+                                    "format": "1748000000",
+                                    "args": []
+                                }
+                            },
+                            {
+                                "name": "APA",
+                                "command": {
+                                    "format": "1960000000",
+                                    "args": []
+                                }
+                            },
+                            {
+                                "name": "Phase",
+                                "command": {
+                                    "format": "1961000000",
+                                    "args": []
+                                }
+                            },
+                            {
+                                "name": "Wide Mode Toggle",
+                                "command": {
+                                    "format": "196E000000",
+                                    "args": []
+                                }
+                            },
+                            {
+                                "name": "Wide Mode: Wide Zoom",
+                                "command": {
+                                    "format": "1B3E000000",
+                                    "args": []
+                                }
+                            },
+                            {
+                                "name": "Wide Mode: Full1",
+                                "command": {
+                                    "format": "1B3F000000",
+                                    "args": []
+                                }
+                            },
+                            {
+                                "name": "Wide Mode: Full2",
+                                "command": {
+                                    "format": "1B40000000",
+                                    "args": []
+                                }
+                            },
+                            {
+                                "name": "Wide Mode: Normal",
+                                "command": {
+                                    "format": "1B41000000",
+                                    "args": []
+                                }
+                            },
+                            {
+                                "name": "Wide Mode: Full",
+                                "command": {
+                                    "format": "1B42000000",
+                                    "args": []
+                                }
+                            },
+                            {
+                                "name": "Wide Mode: Zoom",
+                                "command": {
+                                    "format": "1B43000000",
+                                    "args": []
+                                }
+                            }
+                        ]
+                    },
+                    {
+                        "name": "Setup",
+                        "commands": [
+                            {
+                                "name": "Power On/Off",
+                                "command": {
+                                    "format": "1715000000",
+                                    "args": []
+                                }
+                            },
+                            {
+                                "name": "Picture Muting",
+                                "command": {
+                                    "format": "1724000000",
+                                    "args": []
+                                }
+                            },
+                            {
+                                "name": "Status On",
+                                "command": {
+                                    "format": "1725000000",
+                                    "args": []
+                                }
+                            },
+                            {
+                                "name": "Status Off",
+                                "command": {
+                                    "format": "1726000000",
+                                    "args": []
+                                }
+                            },
+                            {
+                                "name": "Menu",
+                                "command": {
+                                    "format": "1729000000",
+                                    "args": []
+                                }
+                            },
+                            {
+                                "name": "Input A",
+                                "command": {
+                                    "format": "172B000000",
+                                    "args": []
+                                }
+                            },
+                            {
+                                "name": "Component",
+                                "command": {
+                                    "format": "172C000000",
+                                    "args": []
+                                }
+                            },
+                            {
+                                "name": "Power On",
+                                "description": "Must be sent twice when the unit is in standby mode",
+                                "command": {
+                                    "format": "172E000000",
+                                    "args": []
+                                }
+                            },
+                            {
+                                "name": "Power Off",
+                                "command": {
+                                    "format": "172F000000",
+                                    "args": []
+                                }
+                            },
+                            {
+                                "name": "Cursor Right",
+                                "command": {
+                                    "format": "1733000000",
+                                    "args": []
+                                }
+                            },
+                            {
+                                "name": "Cursor Left",
+                                "command": {
+                                    "format": "1734000000",
+                                    "args": []
+                                }
+                            },
+                            {
+                                "name": "Cursor Up",
+                                "command": {
+                                    "format": "1735000000",
+                                    "args": []
+                                }
+                            },
+                            {
+                                "name": "Cursor Down",
+                                "command": {
+                                    "format": "1736000000",
+                                    "args": []
+                                }
+                            },
+                            {
+                                "name": "Input Select",
+                                "command": {
+                                    "format": "1757000000",
+                                    "args": []
+                                }
+                            },
+                            {
+                                "name": "Enter",
+                                "command": {
+                                    "format": "175A000000",
+                                    "args": []
+                                }
+                            },
+                            {
+                                "name": "HDMI 1",
+                                "command": {
+                                    "format": "176F000000",
+                                    "args": []
+                                }
+                            },
+                            {
+                                "name": "HDMI 2",
+                                "command": {
+                                    "format": "1770000000",
+                                    "args": []
+                                }
+                            },
+                            {
+                                "name": "Reset",
+                                "command": {
+                                    "format": "177B000000",
+                                    "args": []
+                                }
+                            }
+                        ]
+                    },
+                    {
+                        "name": "Installation",
+                        "commands": [
+                            {
+                                "name": "V Keystone +",
+                                "command": {
+                                    "format": "1900000000",
+                                    "args": []
+                                }
+                            },
+                            {
+                                "name": "V Keystone -",
+                                "command": {
+                                    "format": "1901000000",
+                                    "args": []
+                                }
+                            },
+                            {
+                                "name": "V Keystone",
+                                "command": {
+                                    "format": "193A000000",
+                                    "args": []
+                                }
+                            },
+                            {
+                                "name": "3D On/Off",
+                                "command": {
+                                    "format": "193B000000",
+                                    "args": []
+                                }
+                            }
+                        ]
+                    },
+                    {
+                        "name": "3D",
+                        "commands": [
+                            {
+                                "name": "2D-3D Display Select Toggle",
+                                "command": {
+                                    "format": "1B12000000",
+                                    "args": []
+                                }
+                            },
+                            {
+                                "name": "3D Format Toggle",
+                                "command": {
+                                    "format": "1B13000000",
+                                    "args": []
+                                }
+                            },
+                            {
+                                "name": "3D Depth +High",
+                                "command": {
+                                    "format": "1B15000000",
+                                    "args": []
+                                }
+                            },
+                            {
+                                "name": "3D Depth -Low",
+                                "command": {
+                                    "format": "1B16000000",
+                                    "args": []
+                                }
+                            },
+                            {
+                                "name": "Simulated 3D Effect Toggle",
+                                "command": {
+                                    "format": "1B17000000",
+                                    "args": []
+                                }
+                            },
+                            {
+                                "name": "3D Glasses Brightness+",
+                                "command": {
+                                    "format": "1B19000000",
+                                    "args": []
+                                }
+                            },
+                            {
+                                "name": "3D Glasses Brightness-",
+                                "command": {
+                                    "format": "1B1A000000",
+                                    "args": []
+                                }
+                            },
+                            {
+                                "name": "2D-3D Display Select Auto",
+                                "command": {
+                                    "format": "1B32000000",
+                                    "args": []
+                                }
+                            },
+                            {
+                                "name": "2D-3D Display Select 3D",
+                                "command": {
+                                    "format": "1B33000000",
+                                    "args": []
+                                }
+                            },
+                            {
+                                "name": "2D-3D Display Select 2D",
+                                "command": {
+                                    "format": "1B34000000",
+                                    "args": []
+                                }
+                            },
+                            {
+                                "name": "3D Format Over-Under",
+                                "command": {
+                                    "format": "1B35000000",
+                                    "args": []
+                                }
+                            },
+                            {
+                                "name": "3D Format Side-by-side",
+                                "command": {
+                                    "format": "1B36000000",
+                                    "args": []
+                                }
+                            },
+                            {
+                                "name": "3D Format Simulated 3D",
+                                "command": {
+                                    "format": "1B37000000",
+                                    "args": []
+                                }
+                            },
+                            {
+                                "name": "Simulated 3D Effect High",
+                                "command": {
+                                    "format": "1B3B000000",
+                                    "args": []
+                                }
+                            },
+                            {
+                                "name": "Simulated 3D Effect Middle",
+                                "command": {
+                                    "format": "1B3C000000",
+                                    "args": []
+                                }
+                            },
+                            {
+                                "name": "Simulated 3D Effect Low",
+                                "command": {
+                                    "format": "1B3D000000",
+                                    "args": []
+                                }
+                            }
+                        ]
+                    }
+                ]
+            }
+        ]
+}
