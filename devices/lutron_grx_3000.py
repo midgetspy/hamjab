@@ -1,4 +1,6 @@
-from device_lib import SerialDevice
+import os
+
+from devices.device_lib import SerialDevice
 
 class Device(SerialDevice):
     """
@@ -9,11 +11,5 @@ class Device(SerialDevice):
     correctly indicate the currently selected scene even if it's changed via the physical buttons.
     """
     delimiter = '\r\n'
-    deviceId = 'lutrongrx3000'
-    
-    def lineReceived(self, line):
-        if line == '':
-            return
-        
-        SerialDevice.lineReceived(self, line)
+    deviceId = os.path.splitext(os.path.basename(__file__))[0]
 

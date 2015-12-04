@@ -150,7 +150,7 @@ class DeviceResource(Resource):
             return SendCommandResource(self.device, command)
         
         elif name == 'frontEnd':
-            return File('etc/{device}/frontend'.format(device=self.device.deviceId))
+            return File('etc/devices/{device}'.format(device=self.device.deviceId))
 
         elif name == 'help':
             return File('etc/help/')
@@ -217,7 +217,6 @@ class MainPageRenderer(Element):
     A template renderer for the index page which displays a list of macros and a list of devices.
     """
     
-    
     loader = XMLFile(FilePath('etc/home/index.html'))
 
     def __init__(self, macros, deviceServerFactory):
@@ -235,7 +234,7 @@ class MainPageRenderer(Element):
         if not CommandServer.isDisabled:
             for device in sorted(self.deviceServerFactory.devices):
                 try:
-                    device_path = FilePath('etc/{device}/frontend/device.json'.format(device=device))
+                    device_path = FilePath('etc/devices/{device}/device.json'.format(device=device))
                     with device_path.open() as device_file:
                         device_data = json.load(device_file)
                         deviceName = device_data['name'] 

@@ -45,12 +45,16 @@ def make_build(file_list):
         if not os.path.isdir(dest_dir_path):
             os.makedirs(dest_dir_path)
 
+        print 'Copying', source_file
+
         if os.path.isdir(source_file_path):
             shutil.copytree(source_file_path, dest_file_path, ignore=ignore)
         else:
             shutil.copy(source_file_path, dest_file_path)
 
 if build_type == 'server':
+    print 'Building server...'
+    
     server_files = [
         'server.py',
         'lib.py',
@@ -60,6 +64,7 @@ if build_type == 'server':
 
     make_build(server_files)
 elif build_type == 'client':
+    print 'Building device client...'
 
     client_files = [
         'deviceClient.py',
@@ -69,12 +74,14 @@ elif build_type == 'client':
 
     make_build(client_files)
 elif build_type == 'eg':
+    print 'Building event ghost plugin...'
+    
     eg_files = [
         'controlClient.py',
         ('eg_plugin/__init__.py', '__init__.py'),
     ]
     
-    for file_path in glob.glob('etc/*/frontend/device.json'):
+    for file_path in glob.glob('etc/devices/*/device.json'):
         with open(file_path) as file_obj:
             text = file_obj.read() 
             data = json.loads(text)
