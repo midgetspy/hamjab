@@ -1,0 +1,988 @@
+{
+    "id": "denonavr3312",
+    "name": "Denon AVR-3312",
+    "commands":
+        [
+            {
+                "id": "power",
+                "name": "Power status/change",
+                "description": "Set the power to on, standby, or query the status.",
+                "command": {
+                    "format": "PW{arg}",
+                    "args": [
+                        {
+                            "id": "arg",
+                            "name": "Argument",
+                            "description": "Valid values: ON, STANDBY, or ? to query status"
+                        }
+                    ]
+                }
+            },
+            {
+                "id": "masterVolume",
+                "name": "Master Volume",
+                "description": "Set the master volume, increase/decrease it, or query it",
+                "command": {
+                    "format": "MV{arg}",
+                    "args": [
+                        {
+                            "id": "arg",
+                            "name": "Argument",
+                            "description": "Valid values: UP, DOWN, xx or ?\nxx: A number from 00-99, in db (99=min, 80=0db)"
+                        }
+                    ]
+                }
+            },
+            {
+                "id": "mute",
+                "name": "Mute",
+                "description": "Mute on/off",
+                "command": {
+                    "format": "MU{arg}",
+                    "args": [
+                        {
+                            "id": "arg",
+                            "name": "Argument",
+                            "description": "Valid values: ON, OFF or ?"
+                        }
+                    ]
+                }
+            },
+            {
+                "name": "Channel Volume Control",
+                "description": "Change the volume for specific channels",
+                "commands": [
+                    {
+                        "id": "frontLeftVolume",
+                        "name": "Front Left Channel Volume",
+                        "description": "Set the front left volume, increase/decrease it, or query it",
+                        "command": {
+                            "format": "CVFL {arg}",
+                            "args": [
+                                {
+                                    "id": "arg",
+                                    "name": "Argument",
+                                    "description": "Valid values: UP, DOWN, xx or ?\nxx: A number from 38-62, in db (50=0db)"
+                                }
+                            ]
+                        }
+                    },
+                    {
+                        "id": "frontRightVolume",
+                        "name": "Front Right Channel Volume",
+                        "description": "Set the front right volume, increase/decrease it, or query it",
+                        "command": {
+                            "format": "CVFR {arg}",
+                            "args": [
+                                {
+                                    "id": "arg",
+                                    "name": "Argument",
+                                    "description": "Valid values: UP, DOWN, xx or ?\nxx: A number from 38-62, in db (50=0db)"
+                                }
+                            ]
+                        }
+                    },
+                    {
+                        "id": "subwooferVolume",
+                        "name": "Subwoofer Channel Volume",
+                        "description": "Set the subwoofer volume, increase/decrease it, or query it",
+                        "command": {
+                            "format": "CVSW {arg}",
+                            "args": [
+                                {
+                                    "id": "arg",
+                                    "name": "Argument",
+                                    "description": "Valid values: UP, DOWN, xx or ?\nxx: A number from 38-62, in db (50=0db, 00=Off)"
+                                }
+                            ]
+                        }
+                    },
+                    {
+                        "id": "surroundLeftVolume",
+                        "name": "Surround Left Channel Volume",
+                        "description": "Set the surround left volume, increase/decrease it, or query it",
+                        "command": {
+                            "format": "CVSL {arg}",
+                            "args": [
+                                {
+                                    "id": "arg",
+                                    "name": "Argument",
+                                    "description": "Valid values: UP, DOWN, xx or ?\nxx: A number from 38-62, in db (50=0db)"
+                                }
+                            ]
+                        }
+                    },
+                    {
+                        "id": "surroundRightVolume",
+                        "name": "Surround Right Channel Volume",
+                        "description": "Set the surround right volume, increase/decrease it, or query it",
+                        "command": {
+                            "format": "CVSR {arg}",
+                            "args": [
+                                {
+                                    "id": "arg",
+                                    "name": "Argument",
+                                    "description": "Valid values: UP, DOWN, xx or ?\nxx: A number from 38-62, in db (50=0db)"
+                                }
+                            ]
+                        }
+                    },
+                    {
+                        "id": "surroundBackLeftVolume",
+                        "name": "Surround Back Left Channel Volume",
+                        "description": "Set the surround back left volume, increase/decrease it, or query it",
+                        "command": {
+                            "format": "CVSBL {arg}",
+                            "args": [
+                                {
+                                    "id": "arg",
+                                    "name": "Argument",
+                                    "description": "Valid values: UP, DOWN, xx or ?\nxx: A number from 38-62, in db (50=0db)"
+                                }
+                            ]
+                        }
+                    },
+                    {
+                        "id": "surroundBackRightVolume",
+                        "name": "Surround Back Right Channel Volume",
+                        "description": "Set the surround back right volume, increase/decrease it, or query it",
+                        "command": {
+                            "format": "CVSBR {arg}",
+                            "args": [
+                                {
+                                    "id": "arg",
+                                    "name": "Argument",
+                                    "description": "Valid values: UP, DOWN, xx or ?\nxx: A number from 38-62, in db (50=0db)"
+                                }
+                            ]
+                        }
+                    },
+                    {
+                        "id": "surroundBackVolume",
+                        "name": "Surround Back Channel Volume",
+                        "description": "Set the surround right volume, increase/decrease it, or query it",
+                        "command": {
+                            "format": "CVSB {arg}",
+                            "args": [
+                                {
+                                    "id": "arg",
+                                    "name": "Argument",
+                                    "description": "Valid values: UP, DOWN, xx or ?\nxx: A number from 38-62, in db (50=0db)"
+                                }
+                            ]
+                        }
+                    },
+                    {
+                        "id": "frontHeightLeftVolume",
+                        "name": "Front Height Left Channel Volume",
+                        "description": "Set the front height left volume, increase/decrease it, or query it",
+                        "command": {
+                            "format": "CVFHL {arg}",
+                            "args": [
+                                {
+                                    "id": "arg",
+                                    "name": "Argument",
+                                    "description": "Valid values: UP, DOWN, xx or ?\nxx: A number from 38-62, in db (50=0db)"
+                                }
+                            ]
+                        }
+                    },
+                    {
+                        "id": "frontHeightRightVolume",
+                        "name": "Front Height Right Channel Volume",
+                        "description": "Set the front height right volume, increase/decrease it, or query it",
+                        "command": {
+                            "format": "CVFHR {arg}",
+                            "args": [
+                                {
+                                    "id": "arg",
+                                    "name": "Argument",
+                                    "description": "Valid values: UP, DOWN, xx or ?\nxx: A number from 38-62, in db (50=0db)"
+                                }
+                            ]
+                        }
+                    },
+                    {
+                        "id": "frontWideLeftVolume",
+                        "name": "Front Wide Left Channel Volume",
+                        "description": "Set the front wide left volume, increase/decrease it, or query it",
+                        "command": {
+                            "format": "CVFWL {arg}",
+                            "args": [
+                                {
+                                    "id": "arg",
+                                    "name": "Argument",
+                                    "description": "Valid values: UP, DOWN, xx or ?\nxx: A number from 38-62, in db (50=0db)"
+                                }
+                            ]
+                        }
+                    },
+                    {
+                        "id": "frontWideRightVolume",
+                        "name": "Front Wide Right Channel Volume",
+                        "description": "Set the front wide right volume, increase/decrease it, or query it",
+                        "command": {
+                            "format": "CVFWR {arg}",
+                            "args": [
+                                {
+                                    "id": "arg",
+                                    "name": "Argument",
+                                    "description": "Valid values: UP, DOWN, xx or ?\nxx: A number from 38-62, in db (50=0db)"
+                                }
+                            ]
+                        }
+                    }
+                ]
+            },
+            {
+                "id": "setInput",
+                "name": "Set Input",
+                "description": "Set Input",
+                "command": {
+                    "format": "SI{arg}",
+                    "args": [
+                        {
+                            "id": "arg",
+                            "name": "Argument",
+                            "description": "PHONO\nCD\nTUNER\nDVD\nBD\nTV\nSAT/CBL\nDVR\nGAME\nGAME2\nV.AUX\nDOCK\nHDRADIO\nIPOD\nNET/USB\nRHAPSODY: (North America model only)\nNAPSTER: (North America & Europe model only)\nPANDORA: (North America model only)\nLASTFM: (Europe model only)\nFLICKR\nFAVORITES\nIRADIO\nSERVER\nUSB/IPOD: Select USB or iPod direct\nUSB: Select INPUT source NET/USB and USB Start Playback\nIPD: Select INPUT source NET/USB and iPod Start Playback\nIRP: Select INPUT source NET/USB and Internet Radio Start Playback\nFVP: Select INPUT source NET/USB and Favorites Start Playback\n?: Return SI status"
+                        }
+                    ]
+                }
+            },
+            {
+                "id": "zoneMain",
+                "name": "Enable/disable the main zone",
+                "description": "Main Zone",
+                "command": {
+                    "format": "ZM{arg}",
+                    "args": [
+                        {
+                            "id": "arg",
+                            "name": "Argument",
+                            "description": "ON, OFF, or ?"
+                        }
+                    ]
+                }
+            },
+            {
+                "id": "mainZoneSleep",
+                "name": "Set Main Zone Sleep Timer",
+                "description": "Changes the number of minutes until the main zone will go to sleep",
+                "command": {
+                    "format": "SLP{arg}",
+                    "args": [
+                        {
+                            "id": "arg",
+                            "name": "Argument",
+                            "description": "OFF, ***, or ?\n***: 001-120, in minutes"
+                        }
+                    ]
+                }
+            },
+            {
+                "id": "recordSelect",
+                "name": "Record source",
+                "description": "Record source",
+                "command": {
+                    "format": "SR{arg}",
+                    "args": [
+                        {
+                            "id": "arg",
+                            "name": "Argument",
+                            "description": "PHONO\nCD\nTUNER\nDVD\nBD\nTV\nSAT/CBL\nDVR\nGAME\nGAME2\nV.AUX\nDOCK\nHDRADIO\nIPOD\nNET/USB\nRHAPSODY: (North America model only)\nNAPSTER: (North America and Europe model only)\nPANDORA: (North America model only)\nLASTFM: (Europe model only)\nFLICKR\nFAVORITES\nIRADIO\nSERVER\nUSB/IPOD\n?: Return SR status"
+                        }
+                    ]
+                }
+            },
+            {
+                "id": "setD",
+                "name": "Set mode",
+                "command": {
+                    "format": "SD{arg}",
+                    "args": [
+                        {
+                            "id": "arg",
+                            "name": "Argument",
+                            "description": "AUTO: (Priority: HDMI -> DIGITAL -> ANALOG)\nHDMI: force HDMI INPUT mode\nDIGITAL: force DIGITAL INPUT mode (Optical, Coaxial)\nANALOG: force ANALOG INPUT mode\n?: Return SD status"
+                        }
+                    ]
+                }
+            },
+            {
+                "id": "digitalInput",
+                "name": "Set digital input mode",
+                "description": "Sets DIGITAL INPUT and chooses the specified mode",
+                "command": {
+                    "format": "SD{arg}",
+                    "args": [
+                        {
+                            "id": "arg",
+                            "name": "Argument",
+                            "description": "AUTO\nPCM: force PCM mode\nDTS: force DTS mode\n?: Return DC status"
+                        }
+                    ]
+                }
+            },
+            {
+                "id": "setVideoSelectMode",
+                "name": "Set video select mode",
+                "description": "Sets VIDEO SELECT mode and chooses the given source",
+                "command": {
+                    "format": "SV{arg}",
+                    "args": [
+                        {
+                            "id": "arg",
+                            "name": "Argument",
+                            "description": "DVD\nBD\nTV\nSAT/CBL\nDVR\nGAME\nGAME2\nV.AUX\nDOCK\nSOURCE: Cancel VIDEO SELECT mode\n?: Return SR status"
+                        }
+                    ]
+                }
+            },
+            {
+                "id": "setAudioMode",
+                "name": "Select the audio mode",
+                "command": {
+                    "format": "MS{arg}",
+                    "args": [
+                        {
+                            "id": "arg",
+                            "name": "Argument",
+                            "description": "MOVIE\nMUSIC\nGAME\nDIRECT\nPURE DIRECT\nSTEREO\nSTANDARD\nDOLBY DIGITAL\nDTS SURROUND\nMCH STEREO\nROCK ARENA\nJAZZ CLUB\nMONO MOVIE\nMATRIX\nVIDEO GAME\nVIRTUAL\n?"
+                        }
+                    ]
+                }
+            },
+            {
+                "id": "setAudioModeQuick",
+                "name": "Sets the audio mode to a quick preset",
+                "command": {
+                    "format": "MSQUICK{arg}",
+                    "args": [
+                        {
+                            "id": "arg",
+                            "name": "Argument",
+                            "description": "Allowed values: *, * MEMORY, ?\n*: number from 1-5"
+                        }
+                    ]
+                }
+            },
+            {
+                "id": "setAudioModeQuick",
+                "name": "Sets the audio mode to a quick preset",
+                "command": {
+                    "format": "MSQUICK{arg}",
+                    "args": [
+                        {
+                            "id": "arg",
+                            "name": "Argument",
+                            "description": "Allowed values: *, * MEMORY, ?\n*: number from 1-5"
+                        }
+                    ]
+                }
+            },
+            {
+                "id": "setHdmiMonitor",
+                "name": "Set the HDMI MONITOR setting",
+                "command": {
+                    "format": "VS{arg}",
+                    "args": [
+                        {
+                            "id": "arg",
+                            "name": "Argument",
+                            "description": "MONIAUTO: automatic detection\nMONI1: OUT-1\nMONI2: OUT-2\nMONI ?: Return VSMONI status"
+                        }
+                    ]
+                }
+            },
+            {
+                "id": "setAspectRatio",
+                "name": "Set the aspect ratio setting",
+                "command": {
+                    "format": "VS{arg}",
+                    "args": [
+                        {
+                            "id": "arg",
+                            "name": "Argument",
+                            "description": "ASPNRM: Normal mode\nASPFUL: FULL mode\nASP ?: Return VSASP status"
+                        }
+                    ]
+                }
+            },
+            {
+                "id": "setResolution",
+                "name": "Set the resolution",
+                "command": {
+                    "format": "VS{arg}",
+                    "args": [
+                        {
+                            "id": "arg",
+                            "name": "Argument",
+                            "description": "SC48P: 480p/576p\nSC10I: 1080i\nSC72P: 720p\nSC10P: 1080p\nSC10P24: 1080p:24Hz\nSCAUTO: Auto\nSC ?: Return VSSC status"
+                        }
+                    ]
+                }
+            },
+            {
+                "id": "setHdmiResolution",
+                "name": "Set the HDMI resolution",
+                "command": {
+                    "format": "VS{arg}",
+                    "args": [
+                        {
+                            "id": "arg",
+                            "name": "Argument",
+                            "description": "SCH48P: 480p/576p\nSCH10I: 1080i\nSCH72P: 720p\nSCH10P: 1080p\nSCH10P24: 1080p:24Hz\nSCHAUTO: Auto\nSCH ?: Return VSSCH status"
+                        }
+                    ]
+                }
+            },
+            {
+                "id": "setHdmiAudioOutput",
+                "name": "Sets the HDMI audio output",
+                "command": {
+                    "format": "VSAUDIO {arg}",
+                    "args": [
+                        {
+                            "id": "arg",
+                            "name": "Argument",
+                            "description": "AMP, TV, ?"
+                        }
+                    ]
+                }
+            },
+            {
+                "id": "setVideoProcessingMode",
+                "name": "Sets the video processing mode",
+                "command": {
+                    "format": "VS{arg}",
+                    "args": [
+                        {
+                            "id": "arg",
+                            "name": "Argument",
+                            "description": "VPMAUTO: Auto\nVPMGAME: Game\nVPMMOVI: Movie\nVPM ?: Return VSVPM status"
+                        }
+                    ]
+                }
+            },
+            {
+                "id": "setToneControl",
+                "name": "Tone Control",
+                "command": {
+                    "format": "PSTONE CTRL {arg}",
+                    "args": [
+                        {
+                            "id": "arg",
+                            "name": "Argument",
+                            "description": "OFF, ON, ?"
+                        }
+                    ]
+                }
+            },
+            {
+                "id": "setSurroundBackSpMode",
+                "name": "Surround Back SP Mode",
+                "command": {
+                    "format": "PS{arg}",
+                    "args": [
+                        {
+                            "id": "arg",
+                            "name": "Argument",
+                            "description": "SB:MTRX ON\nSB:PL2x CINEMA\nSB:PL2x MUSIC\nSB:ON\nSB:OFF\nSB: ?"
+                        }
+                    ]
+                }
+            },
+            {
+                "id": "setCinemaEq",
+                "name": "Set Cinema EQ",
+                "command": {
+                    "format": "PSCINEMA {arg}",
+                    "args": [
+                        {
+                            "id": "arg",
+                            "name": "Argument",
+                            "description": "EQ.ON, EQ.OFF, EQ. ?"
+                        }
+                    ]
+                }
+            },
+            {
+                "id": "setCinemaMode",
+                "name": "Set Cinema/Music/Game/PL mode",
+                "description": "Changing this can change DOLBY PL2, PL2x, NEO:6 mode.\nSB=ON: PL2x mode, SB=OFF: PL2 mode\nGAME can change DOLBY PL2 & PL2x mode\nPL can change only DOLBY PL2 mode",
+                "command": {
+                    "format": "PS{arg}",
+                    "args": [
+                        {
+                            "id": "arg",
+                            "name": "Argument",
+                            "description": "MODE:MUSIC\nMODESCINEMA\nMODE:GAME\nMODE:PRO LOGIC\nMODE: ?"
+                        }
+                    ]
+                }
+            },
+            {
+                "id": "setFrontHeight",
+                "name": "Enable/Disable Front Height",
+                "command": {
+                    "format": "PS{arg}",
+                    "args": [
+                        {
+                            "id": "arg",
+                            "name": "Argument",
+                            "description": "FH:ON, FH:OFF, FH: ?"
+                        }
+                    ]
+                }
+            },
+            {
+                "id": "setPL2GainHeight",
+                "name": "PLIIz Height Gain direct change",
+                "command": {
+                    "format": "PSPHG {arg}",
+                    "args": [
+                        {
+                            "id": "arg",
+                            "name": "Argument",
+                            "description": "LOW, MID, HI, ?"
+                        }
+                    ]
+                }
+            },
+            {
+                "id": "setSpeakerOutput",
+                "name": "Set speaker output",
+                "command": {
+                    "format": "PS{arg}",
+                    "args": [
+                        {
+                            "id": "arg",
+                            "name": "Argument",
+                            "description": "SP:FH : Front height\nSP:FW : Front Wide\nSP:SB : Side Back\nSP: OFF\nSP: ? : Return PSSP status"
+                        }
+                    ]
+                }
+            },
+            {
+                "id": "setMultEQ",
+                "name": "MultEQ XT mode direct change",
+                "command": {
+                    "format": "PS{arg}",
+                    "args": [
+                        {
+                            "id": "arg",
+                            "name": "Argument",
+                            "description": "MULTEQ:AUDYSSEY, MULTEQ:BYP.LR, MULTEQ:FLAT, MULTEQ:MANUAL, MULTEQ:OFF, MULTEQ: ?"
+                        }
+                    ]
+                }
+            },
+            {
+                "id": "setDynamicEQ",
+                "name": "Dynamic EQ",
+                "command": {
+                    "format": "PSDYNEQ {arg}",
+                    "args": [
+                        {
+                            "id": "arg",
+                            "name": "Argument",
+                            "description": "ON, OFF, ?"
+                        }
+                    ]
+                }
+            },
+            {
+                "id": "setReferenceLevel",
+                "name": "Set Reference Level Offset",
+                "description": "Sets the reference level offset (in dB)",
+                "command": {
+                    "format": "PSREFLEV {arg}",
+                    "args": [
+                        {
+                            "id": "arg",
+                            "name": "Argument",
+                            "description": "0, 5, 10, 15, ?"
+                        }
+                    ]
+                }
+            },
+            {
+                "id": "setDynamicVolume",
+                "name": "Set Dynamic Volume",
+                "command": {
+                    "format": "PSDYNVOL {arg}",
+                    "args": [
+                        {
+                            "id": "arg",
+                            "name": "Argument",
+                            "description": "NGT: Midnight\nEVE: Evening\nDAY: Day, ?: Return PSDYNVOL status"
+                        }
+                    ]
+                }
+            },
+            {
+                "id": "setAudysseyDsx",
+                "name": "Set Audyssey DSX",
+                "command": {
+                    "format": "PSDSX {arg}",
+                    "args": [
+                        {
+                            "id": "arg",
+                            "name": "Argument",
+                            "description": "ONH: On (height)\nONW: On (wide)\nOFF\n?: Return PSDSX status"
+                        }
+                    ]
+                }
+            },
+            {
+                "id": "setStageWidth",
+                "name": "Set Stage Width",
+                "command": {
+                    "format": "PSSTW {arg}",
+                    "args": [
+                        {
+                            "id": "arg",
+                            "name": "Argument",
+                            "description": "UP, DOWN, **, ?\n**: 00-99, 50=0dB"
+                        }
+                    ]
+                }
+            },
+            {
+                "id": "setStageHeight",
+                "name": "Set Stage Height",
+                "command": {
+                    "format": "PSSTH {arg}",
+                    "args": [
+                        {
+                            "id": "arg",
+                            "name": "Argument",
+                            "description": "UP, DOWN, **, ?\n**: 00-99, 50=0dB"
+                        }
+                    ]
+                }
+            },
+            {
+                "id": "setBass",
+                "name": "Set Bass Level",
+                "command": {
+                    "format": "PSBAS {arg}",
+                    "args": [
+                        {
+                            "id": "arg",
+                            "name": "Argument",
+                            "description": "UP, DOWN, **, ?\n**: 00-99, 50=0dB"
+                        }
+                    ]
+                }
+            },
+            {
+                "id": "setTreble",
+                "name": "Set Treble Level",
+                "command": {
+                    "format": "PSTRE {arg}",
+                    "args": [
+                        {
+                            "id": "arg",
+                            "name": "Argument",
+                            "description": "UP, DOWN, **, ?\n**: 00-99, 50=0dB"
+                        }
+                    ]
+                }
+            },
+            {
+                "id": "setDRC",
+                "name": "DRC direct change",
+                "command": {
+                    "format": "PSDRC {arg}",
+                    "args": [
+                        {
+                            "id": "arg",
+                            "name": "Argument",
+                            "description": "AUTO, LOW, MID, HI, OFF, ?"
+                        }
+                    ]
+                }
+            },
+            {
+                "id": "setDComp",
+                "name": "D.COMP direct change",
+                "command": {
+                    "format": "PSDCO {arg}",
+                    "args": [
+                        {
+                            "id": "arg",
+                            "name": "Argument",
+                            "description": "LOW, MID, HI, OFF, ?"
+                        }
+                    ]
+                }
+            },
+            {
+                "id": "setLFE",
+                "name": "Set LFE Level",
+                "command": {
+                    "format": "PSLFE {arg}",
+                    "args": [
+                        {
+                            "id": "arg",
+                            "name": "Argument",
+                            "description": "UP, DOWN, **, ?\n**: 00-99, 00=0dB, 10=-10dB"
+                        }
+                    ]
+                }
+            },
+            {
+                "id": "setEffect",
+                "name": "Set EFFECT Level",
+                "command": {
+                    "format": "PSEFF {arg}",
+                    "args": [
+                        {
+                            "id": "arg",
+                            "name": "Argument",
+                            "description": "UP, DOWN, **, ?\n**: 00-99, 00=0dB, 10=10dB"
+                        }
+                    ]
+                }
+            },
+            {
+                "id": "setDelay",
+                "name": "Set Delay",
+                "command": {
+                    "format": "PSLFE {arg}",
+                    "args": [
+                        {
+                            "id": "arg",
+                            "name": "Argument",
+                            "description": "UP, DOWN, ***, ?\n***: 000-999, in milliseconds"
+                        }
+                    ]
+                }
+            },
+            {
+                "id": "setAFDM",
+                "name": "AFDM on/off",
+                "command": {
+                    "format": "PSADF {arg}",
+                    "args": [
+                        {
+                            "id": "arg",
+                            "name": "Argument",
+                            "description": "ON, OFF, ?"
+                        }
+                    ]
+                }
+            },
+            {
+                "id": "setPanorama",
+                "name": "Panorama on/off",
+                "command": {
+                    "format": "PSPAN {arg}",
+                    "args": [
+                        {
+                            "id": "arg",
+                            "name": "Argument",
+                            "description": "ON, OFF, ?"
+                        }
+                    ]
+                }
+            },
+            {
+                "id": "setDimension",
+                "name": "Set Dimension",
+                "command": {
+                    "format": "PSDIM {arg}",
+                    "args": [
+                        {
+                            "id": "arg",
+                            "name": "Argument",
+                            "description": "UP, DOWN, **, ?\n**: 00-99 (dB)"
+                        }
+                    ]
+                }
+            },
+            {
+                "id": "setCenterWidth",
+                "name": "Set Center Width",
+                "command": {
+                    "format": "PSCEN {arg}",
+                    "args": [
+                        {
+                            "id": "arg",
+                            "name": "Argument",
+                            "description": "UP, DOWN, **, ?\n**: 00-99 (dB)"
+                        }
+                    ]
+                }
+            },
+            {
+                "id": "setCenterImage",
+                "name": "Set Center Image",
+                "command": {
+                    "format": "PSCEI {arg}",
+                    "args": [
+                        {
+                            "id": "arg",
+                            "name": "Argument",
+                            "description": "UP, DOWN, **, ?\n**: 00-99 (dB)"
+                        }
+                    ]
+                }
+            },
+            {
+                "id": "setSW",
+                "name": "SW on/off",
+                "command": {
+                    "format": "PSSWR {arg}",
+                    "args": [
+                        {
+                            "id": "arg",
+                            "name": "Argument",
+                            "description": "ON, OFF, ?"
+                        }
+                    ]
+                }
+            },
+            {
+                "id": "setRoomSize",
+                "name": "Change room size",
+                "command": {
+                    "format": "PSRSZ {arg}",
+                    "args": [
+                        {
+                            "id": "arg",
+                            "name": "Argument",
+                            "description": "S, MS, M, ML, L, ?"
+                        }
+                    ]
+                }
+            },
+            {
+                "id": "setAudioDelay",
+                "name": "Set Audio Delay",
+                "command": {
+                    "format": "PSDELAY {arg}",
+                    "args": [
+                        {
+                            "id": "arg",
+                            "name": "Argument",
+                            "description": "UP, DOWN, ***, ?\n***: 000-999, in milliseconds"
+                        }
+                    ]
+                }
+            },
+            {
+                "id": "setAudioRestorer",
+                "name": "Set Audio Restorer",
+                "command": {
+                    "format": "PSRSTR {arg}",
+                    "args": [
+                        {
+                            "id": "arg",
+                            "name": "Argument",
+                            "description": "OFF, MODE1, MODE2, MODE3, ?"
+                        }
+                    ]
+                }
+            },
+            {
+                "id": "setFrontSpeaker",
+                "name": "Set Front Speaker direct change",
+                "command": {
+                    "format": "PS {arg}",
+                    "args": [
+                        {
+                            "id": "arg",
+                            "name": "Argument",
+                            "description": "FRONT SPA, FRONT SPB, FRONT SPA+B, FRONT?"
+                        }
+                    ]
+                }
+            },
+            {
+                "id": "setContrast",
+                "name": "Set Contrast",
+                "command": {
+                    "format": "PVCN {arg}",
+                    "args": [
+                        {
+                            "id": "arg",
+                            "name": "Argument",
+                            "description": "UP, DOWN, **, ?\n**: 44-56, 50=0"
+                        }
+                    ]
+                }
+            },
+            {
+                "id": "setBrightness",
+                "name": "Set Brightness",
+                "command": {
+                    "format": "PVBR {arg}",
+                    "args": [
+                        {
+                            "id": "arg",
+                            "name": "Argument",
+                            "description": "UP, DOWN, **, ?\n**: 00-12, 00=0"
+                        }
+                    ]
+                }
+            },
+            {
+                "id": "setChroma",
+                "name": "Set Chroma",
+                "command": {
+                    "format": "PVCM {arg}",
+                    "args": [
+                        {
+                            "id": "arg",
+                            "name": "Argument",
+                            "description": "UP, DOWN, **, ?\n**: 44-56, 50=0"
+                        }
+                    ]
+                }
+            },
+            {
+                "id": "setHue",
+                "name": "Set Hue",
+                "command": {
+                    "format": "PVHUE {arg}",
+                    "args": [
+                        {
+                            "id": "arg",
+                            "name": "Argument",
+                            "description": "UP, DOWN, **, ?\n**: 44-56, 50=0"
+                        }
+                    ]
+                }
+            },
+            {
+                "id": "setDNR",
+                "name": "DNR direct change",
+                "command": {
+                    "format": "PVDNR {arg}",
+                    "args": [
+                        {
+                            "id": "arg",
+                            "name": "Argument",
+                            "description": "OFF, LOW, MID, HI, ?"
+                        }
+                    ]
+                }
+            },
+            {
+                "id": "setEnhancer",
+                "name": "Set enhancer value",
+                "command": {
+                    "format": "PVENH {arg}",
+                    "args": [
+                        {
+                            "id": "arg",
+                            "name": "Argument",
+                            "description": "UP, DOWN, **, ?\n**: 00-12, 00=0"
+                        }
+                    ]
+                }
+            }
+        ]
+}
