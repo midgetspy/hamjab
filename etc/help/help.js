@@ -41,7 +41,7 @@ var create_command = function(command) {
     $.each(command['command']['args'], function(i,e){
         args.append($('<div class="command-arg">')
             .append('<span class="command-label">' + e['id'] + '</span>')
-            .append('<span class="command-value">' + e['description'] + '</span>'))
+            .append('<span class="command-value">' + e['description'].replace('\n','<br />') + '</span>'))
         .append('</div>');
     });
     
@@ -59,7 +59,7 @@ var create_command = function(command) {
     if (command.hasOwnProperty('response')) {
         element.append($('<div class="command-response">')
             .append('<span class="command-label">Response</span>')
-            .append('<span class="command-value">' + command['response']['description'] + '</span>'))
+            .append('<span class="command-value">' + command['response']['description'].replace('\n','<br />') + '</span>'))
         .append('</div>');
     }
         
@@ -69,7 +69,7 @@ var create_command = function(command) {
         $.each(command['examples'], function(i,e) {
             examples.append($('<div class="command-example">')
                 .append('<span class="command-label">' + e['command'] + '</span>')
-                .append('<span class="command-value">' + e['description'] + '</span>'))
+                .append('<span class="command-value">' + e['description'].replace('\n','<br />') + '</span>'))
             .append('</div>');
         });
         

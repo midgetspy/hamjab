@@ -40,6 +40,11 @@ body {
     display: inline-block;
     width: 10em;
     font-weight: bold;
+    vertical-align: top;
+}
+
+.command-value {
+    display: inline-block;
 }
 
 .command-format .command-value {
