@@ -7,8 +7,9 @@ from twisted.protocols.basic import LineReceiver
 
 from zope.interface import provider
 
+_reactor = reactor
 def timeoutDeferred(deferred, timeout):
-    delayedCall = reactor.callLater(timeout, deferred.cancel)
+    delayedCall = _reactor.callLater(timeout, deferred.cancel)
     def gotResult(result):
         if delayedCall.active():
             delayedCall.cancel()
