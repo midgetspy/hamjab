@@ -53,13 +53,15 @@ class ControlClientPlugin(eg.PluginBase):
             if 'commands' in cur_item:
                 self._add_group(new_group, device_id, cur_item)
             else:
+                command_id = device_id + cur_item['name']
+                
                 class Action(DataDrivenAction):
                     command = cur_item
                     deviceId = device_id
 
                     name = cur_item['name']
-                    description = cur_item['description']
-                Action.__name__ = str(cur_item['id'])
+                    description = cur_item['description'] if 'description' in cur_item else ''
+                Action.__name__ = str(command_id)
                 new_group.AddAction(Action)
     
     def __start__(self, host, port):
