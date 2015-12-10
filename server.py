@@ -5,6 +5,8 @@ import os
 from lib import DeviceServerFactory, DEFAULT_DEVICE_SERVER_PORT
 from web import CommandServer
 
+from control_logic import eventCallback, commandCallback
+
 from twisted.web import server
 from twisted.internet import reactor, endpoints
 
@@ -45,11 +47,11 @@ parser.add_argument('--interface',
 args = parser.parse_args()
 
 # start up the device server
-factory = DeviceServerFactory()
+factory = DeviceServerFactory(args.macros, eventCallback, commandCallback)
 endpoints.TCP4ServerEndpoint(reactor, args.deviceServerPort, interface=args.interface).listen(factory)
 
 # start up the control server
-endpoints.TCP4ServerEndpoint(reactor, args.controlServerPort, interface=args.interface).listen(server.Site(CommandServer(factory, args.macros)))
+endpoints.TCP4ServerEndpoint(reactor, args.controlServerPort, interface=args.interface).listen(server.Site(CommandServer(factory)))
 
 # start the run loop
 reactor.run()

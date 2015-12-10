@@ -3,6 +3,7 @@ import traceback, unicodedata
 from twisted.logger import Logger, ILogObserver, formatEventAsClassicLogText
 from twisted.internet import protocol, reactor, error
 from twisted.internet.defer import Deferred, returnValue, inlineCallbacks
+from twisted.internet.task import deferLater
 from twisted.protocols.basic import LineReceiver
 
 from zope.interface import provider
@@ -198,9 +199,11 @@ class DeviceServerProtocol(QueuedLineSender):
     
     timeout = 60
     
-    def __init__(self):
+    def __init__(self, eventCallback, commandCallback):
         QueuedLineSender.__init__(self)
         self.deviceId = None
+        self._eventCallback = eventCallback
+        self._commandCallback = commandCallback
     
     def lineReceived(self, line):
         if not self.deviceId:
@@ -208,6 +211,11 @@ class DeviceServerProtocol(QueuedLineSender):
             self.factory.addDevice(self)
         else:
             QueuedLineSender.lineReceived(self, line)
+
+    def _receivedUnsolicitedLine(self, line):
+        self._runCustomCallback(self._eventCallback, self.deviceId, line)
+        
+        QueuedLineSender._receivedUnsolicitedLine(self, line)
     
     def connectionLost(self, reason):
         if reason.type is not error.ConnectionAborted:
@@ -222,7 +230,15 @@ class DeviceServerProtocol(QueuedLineSender):
         result = yield self.sendLine(command)
         self.log.debug("Result of command {command} was '{result}'", command=command, result=result)
         
+        self._runCustomCallback(self._commandCallback, self.deviceId, command, result)
+        
         returnValue(result)
+
+    def _runCustomCallback(self, func, *args):
+        try:
+            func(self.factory, *args)
+        except:
+            self.log.debug(traceback.format_exc())
 
 class DeviceServerFactory(protocol.Factory):
     """
@@ -232,8 +248,11 @@ class DeviceServerFactory(protocol.Factory):
     protocol = DeviceServerProtocol
     log = Logger(observer=printToConsole)
     
-    def __init__(self):
+    def __init__(self, macros, eventCallback, commandCallback):
         self.devices = {}
+        self.macros = macros
+        self._eventCallback = eventCallback
+        self._commandCallback = commandCallback
     
     def addDevice(self, protocol):
         if protocol.deviceId in self.devices:
@@ -256,3 +275,44 @@ class DeviceServerFactory(protocol.Factory):
     def getDevice(self, deviceId):
         if self.isDeviceRegistered(deviceId):
             return self.devices[deviceId]
+
+    def buildProtocol(self, addr):
+        protocol = self.protocol(self._eventCallback, self._commandCallback)
+        protocol.factory = self
+        return protocol
+
+    @inlineCallbacks
+    def sendCommand(self, deviceId, command):
+        device = self.getDevice(deviceId)
+        if not device:
+            returnValue(NO_DEVICE_FOUND)
+        
+        result = yield device.sendCommand(command)
+        returnValue(result)
+
+    @inlineCallbacks
+    def runMacro(self, macroName):
+        self.log.info("Running macro {macroName}", macroName=macroName)
+        
+        for command in self.macros[macroName]['commands']:
+            
+            deviceId = command['device']
+            
+            if deviceId == DELAY:
+                length = int(command['command'])
+                self.log.debug("Starting a delay task for {length} seconds", length=length)
+                yield deferLater(reactor, length, lambda x: None, DELAY)
+
+            elif not self.isDeviceRegistered(deviceId):
+                self.log.info("Device {device} not online, can't finish macro {macroName}", device=deviceId, macroName=macroName)
+                returnValue(NO_DEVICE_FOUND)
+            
+            else:
+                device = self.getDevice(deviceId)
+                result = yield device.sendCommand(command['command'])
+                if result != SUCCESS:
+                    self.log.info("Error occurred while running macro {macroName}: {result}", macroName=macroName, result=result)
+                    returnValue(result)
+        
+        self.log.info("Finished running macro {macroName}", macroName=macroName)
+        returnValue(SUCCESS)

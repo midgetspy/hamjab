@@ -173,43 +173,24 @@ class MacroResource(DeferredLeafResource):
     
     log = Logger(observer=printToConsole)
 
-    def __init__(self, deviceServerFactory, macroName, macro):
+    def __init__(self, deviceServerFactory, macroName):
         DeferredLeafResource.__init__(self)
         self.deviceServerFactory = deviceServerFactory
         self.macroName = macroName
-        self.macro = macro
 
     @inlineCallbacks
     def _delayedRender(self, request):
         
-        def fail(result):
-            self.log.warn("Command failed in macro {macroName}, halting execution. Command was {command}", macroName=self.macroName, command=command)
+        result = yield self.deviceServerFactory.runMacro(self.macroName)
+        
+        if result != SUCCESS:
+            self.log.warn("Command failed in macro {macroName}, halting execution", macroName=self.macroName)
             request.setResponseCode(500)
             request.write(result)
-            request.finish()
-            returnValue(None)
-        
-        for command in self.macro['commands']:
-            
-            deviceId = command['device']
-            
-            if deviceId == DELAY:
-                length = int(command['command'])
-                self.log.debug("Starting a delay task for {length} seconds", length=length)
-                yield deferLater(reactor, length, lambda x: None, DELAY)
+        else:
+            self.log.info("Finished running macro {macroName}", macroName=self.macroName)
+            request.write(SUCCESS)
 
-            elif not self.deviceServerFactory.isDeviceRegistered(deviceId):
-                fail(NO_DEVICE_FOUND)
-            
-            else:
-                device = self.deviceServerFactory.getDevice(deviceId)
-                
-                result = yield device.sendCommand(command['command'])
-                if result in (NO_DEVICE_FOUND, TIMEOUT):
-                    fail(result)
-        
-        self.log.info("Finished running macro {macroName}", macroName=self.macroName)
-        request.write(SUCCESS)
         request.finish()
 
 class MainPageRenderer(Element):
@@ -219,15 +200,14 @@ class MainPageRenderer(Element):
     
     loader = XMLFile(FilePath('etc/home/index.html'))
 
-    def __init__(self, macros, deviceServerFactory):
-        self.macros = macros
+    def __init__(self, deviceServerFactory):
         self.deviceServerFactory = deviceServerFactory
     
     @renderer
     def macroList(self, request, tag):
         if not CommandServer.isDisabled:
-            for macro in sorted(self.macros, key=lambda x: self.macros[x]['name']):
-                yield tag.clone().fillSlots(macroName = self.macros[macro]['name'], macroId=macro)
+            for macro in sorted(self.deviceServerFactory.macros, key=lambda x: self.deviceServerFactory.macros[x]['name']):
+                yield tag.clone().fillSlots(macroName = self.deviceServerFactory.macros[macro]['name'], macroId=macro)
     
     @renderer
     def deviceList(self, request, tag):
@@ -295,16 +275,15 @@ class CommandServer(Resource):
     isLeaf = False
     isDisabled = False
     
-    def __init__(self, deviceServerFactory, macros):
+    def __init__(self, deviceServerFactory):
         Resource.__init__(self)
-        self.macros = macros
         self.deviceServerFactory = deviceServerFactory
     
     def getChild(self, name, request):
         
         if name == "home":
             templateParser = TemplateFile('etc/home/')
-            templateParser.addRenderer('index', MainPageRenderer(self.macros, self.deviceServerFactory))
+            templateParser.addRenderer('index', MainPageRenderer(self.deviceServerFactory))
             return templateParser
 
         elif name == "toggleStatus":
@@ -324,10 +303,10 @@ class CommandServer(Resource):
             
             (macroName, ) = ArgUtils._get_args(request, ("macroName",))
             
-            if macroName not in self.macros:
+            if macroName not in self.deviceServerFactory.macros:
                 return NoResource()
             
-            return MacroResource(self.deviceServerFactory, macroName, self.macros[macroName])
+            return MacroResource(self.deviceServerFactory, macroName)
         
         elif self.deviceServerFactory.isDeviceRegistered(name) and '/' in request.path:
             
