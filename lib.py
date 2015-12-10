@@ -54,6 +54,9 @@ class QueuedLineSender(LineReceiver):
         self._requests = []
 
     def lineReceived(self, line):
+        if line == '':
+            return
+
         if not self.responseDeferred:
             self._receivedUnsolicitedLine(line)
         else:
