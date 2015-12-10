@@ -7,7 +7,7 @@ import sys
 root = os.path.dirname(os.path.realpath(__file__))
 
 def usage():
-    print "Usage: {file} <server|client|eg>".format(file=os.path.basename(__file__))
+    print "Usage: {file} <server|client|eg|kodi>".format(file=os.path.basename(__file__))
     exit()
 
 if len(sys.argv) < 2:
@@ -74,7 +74,7 @@ elif build_type == 'client':
 
     make_build(client_files)
 elif build_type == 'eg':
-    print 'Building event ghost plugin...'
+    print 'Building EventGhost plugin...'
     
     eg_files = [
         'controlClient.py',
@@ -88,5 +88,14 @@ elif build_type == 'eg':
         eg_files.append((file_path, 'devices', data['id'], 'device.json'))
     
     make_build(eg_files)
+elif build_type == 'kodi':
+    print 'Building Kodi addon...'
+    
+    kodi_files = [
+        ('kodi', 'service.xbmc.blah'),
+        ('lib.py', 'service.xbmc.blah/resources/lib/lib.py'),
+    ]
+    
+    make_build(kodi_files)
 else:
     usage()

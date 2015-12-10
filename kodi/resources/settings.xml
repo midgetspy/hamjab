@@ -1,0 +1,8 @@
+<?xml version="1.0" encoding="UTF-8" standalone="yes"?>
+<settings>
+    <category label="32000"> 
+      <setting label="32010" type="ipaddress" id="device_server_ip" default="127.0.0.1"/>
+      <setting label="32011" type="number" id="device_server_port" default="8007" />
+      <setting label="32012" type="slider" id="idle_time" default="10" range="1,1,60" option="int" />
+    </category>
+</settings>

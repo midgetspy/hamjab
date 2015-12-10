@@ -1,0 +1,13 @@
+<?xml version="1.0" encoding="UTF-8" standalone="yes"?>
+<addon id="service.xbmc.blah" name="BLAH Client" version="0.1" provider-name="midgetspy">
+  <requires>
+    <import addon="xbmc.python" version="2.1.0"/>
+    <import addon="script.module.twisted"/>
+  </requires>
+  <extension point="xbmc.service" library="client.py" start="startup">
+  </extension>
+  <extension point="xbmc.addon.metadata">
+    <platform>all</platform>
+    <summary lang="en">BLAH device client for Kodi. Sends events to the device server when certain actions occur within XBMC.</summary>
+  </extension>
+</addon>
