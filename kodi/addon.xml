@@ -2,7 +2,7 @@
 <addon id="service.xbmc.blah" name="BLAH Client" version="0.1" provider-name="midgetspy">
   <requires>
     <import addon="xbmc.python" version="2.1.0"/>
-    <import addon="script.module.twisted"/>
+    <import addon="script.module.twisted" version="15.5.0"/>
   </requires>
   <extension point="xbmc.service" library="client.py" start="startup">
   </extension>
