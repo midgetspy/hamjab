@@ -69,7 +69,14 @@ class QueuedLineSender(LineReceiver):
                 command, queued_deferred = self._requests.pop(0)
                 self._sendLine(command, queued_deferred)
             
-            current_deferred.callback(line)
+            try:
+                line = self._process_line(line)
+                current_deferred.callback(line)
+            except Exception as e:
+                current_deferred.errback(e)
+
+    def _process_line(self, line):
+        return line
 
     def timeoutDeferred(self, deferred):
         if self.responseDeferred == deferred:
