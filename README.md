@@ -11,6 +11,7 @@ HamJab is a set of programs which allow you to control devices via RS232/Etherne
 
 - use an RF/bluetooth remote combined with EventGhost so no line of sight is required to your IR-controlled devices
 - any existing scripts/program can control devices with the API
+- build a custom UI for device control (eg. web UI for a tablet/touchscreen)
 
 3) **Control Logic**: Use simple python logic to have HamJab automate your devices
 
@@ -53,6 +54,11 @@ Currently HamJab only has Device Client libraries for the devices I own or have 
 - Kodi
 
 HamJab ships with a lot of helper code which means most devices should be quite simple to add. I'm happy to add support for your device as long as you will work with me to do the testing.
+
+## What doesn't it do?
+
+1) HamJab has no security built in. Anybody on your local network can control any device. This will probably change a little later.
+2) Comments, tests, and documentation is pretty light. Sorry. I'll continue to build it up as I go.
 
 ## Documentation
 
