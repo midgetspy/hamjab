@@ -56,6 +56,13 @@ HamJab ships with a lot of helper code which means most devices should be quite 
 
 ## Documentation
 
+### Requirements
+
+- python 2.6+
+- Twisted 15.4.0 (older versions might work but haven't been tested)
+- pyserial (to talk to RS232 devices)
+- pywin32 (for RS232 support on Windows)
+
 ### Components
 
 You can build individual packages from the main HamJab source. To do this run ```build.py```, results will be placed in the ```out``` folder.
