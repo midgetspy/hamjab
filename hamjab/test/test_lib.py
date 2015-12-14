@@ -1,5 +1,5 @@
-import lib
-from lib import QueuedLineSender
+from hamjab import lib
+from hamjab.lib import QueuedLineSender
 from twisted.internet.task import Clock
 from twisted.trial import unittest
 from twisted.test import proto_helpers
@@ -11,10 +11,10 @@ class QueuedLineSenderTestCase(unittest.TestCase):
         self.transport = proto_helpers.StringTransport()
         self.protocol.makeConnection(self.transport)
         
-        self._reactor = lib._reactor
+        self._reactor = hamjab.lib._reactor
     
     def tearDown(self):
-        lib._reactor = self._reactor
+        hamjab.lib._reactor = self._reactor
     
     def test_commands_queueing(self):
         d = self.protocol.sendLine('test1')
@@ -56,7 +56,7 @@ class QueuedLineSenderTestCase(unittest.TestCase):
 
     def test_simple_command_timeout(self):
         
-        lib._reactor = Clock()
+        hamjab.lib._reactor = Clock()
         
         d = self.protocol.sendLine('test')
         self.assertEqual('test\r', self.transport.value())
@@ -66,7 +66,7 @@ class QueuedLineSenderTestCase(unittest.TestCase):
         self.protocol.dataReceived('an')
         self.protocol.dataReceived('swer')
 
-        lib._reactor.advance(self.protocol.timeout)
+        hamjab.lib._reactor.advance(self.protocol.timeout)
         
         return d
 

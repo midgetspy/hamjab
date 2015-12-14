@@ -1,11 +1,12 @@
+import os
 import argparse
 import pkgutil
 
 from twisted.internet import reactor
-from lib import DeviceClientFactory, DEFAULT_DEVICE_SERVER_PORT
+from hamjab.lib import DeviceClientFactory, DEFAULT_DEVICE_SERVER_PORT
 
 excluded_packages = ['test', 'device_lib']
-device_list = [y for x,y,z in pkgutil.iter_modules(['devices']) if y not in excluded_packages]
+device_list = [y for x,y,z in pkgutil.iter_modules([os.path.join('hamjab', 'devices')]) if y not in excluded_packages]
 
 parser = argparse.ArgumentParser(description='Run a device client')
 parser.add_argument('deviceServerHost',
@@ -22,8 +23,9 @@ parser.add_argument('--deviceServerPort',
 args = parser.parse_args()
 
 try:
-    device = __import__('devices.' + args.deviceType, globals(), locals(), ['Device']).Device
-except (ImportError, AttributeError):
+    device = __import__('hamjab.devices.' + args.deviceType, globals(), locals(), ['Device']).Device
+except (ImportError, AttributeError) as e:
+    print e
     parser.error("Unable to load deviceType {}".format(args.deviceType))
 
 deviceProtocol = device(args.deviceConnectionString)

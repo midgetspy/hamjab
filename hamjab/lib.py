@@ -34,6 +34,10 @@ def printToConsole(event):
         print "NO LOG TRACEBACK", traceback.format_stack()
     print log,
 
+def my_logger():
+    f = logfile.LogFile("twistd_alert.log", '/var/log/', rotateLength=1000000, maxRotatedFiles=10)
+    log_observer = log.FileLogObserver(f)
+    return log_observer.emit
 
 class QueuedLineSender(LineReceiver):
     """
@@ -317,7 +321,7 @@ class DeviceServerFactory(protocol.Factory):
             else:
                 device = self.getDevice(deviceId)
                 result = yield device.sendCommand(command['command'])
-                if result != SUCCESS:
+                if result == (NO_DEVICE_FOUND, TIMEOUT):
                     self.log.info("Error occurred while running macro {macroName}: {result}", macroName=macroName, result=result)
                     returnValue(result)
         

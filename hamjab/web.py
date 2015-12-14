@@ -1,17 +1,16 @@
 import json
 import os.path
 
-from lib import printToConsole, NO_DEVICE_FOUND, TIMEOUT, SUCCESS, DELAY, DISABLED
+from hamjab.lib import printToConsole, NO_DEVICE_FOUND, SUCCESS
 
-from twisted.internet import reactor
 from twisted.internet.defer import returnValue, inlineCallbacks
-from twisted.internet.task import deferLater
 from twisted.logger import Logger
 from twisted.python.filepath import FilePath
 from twisted.web.resource import Resource, NoResource, ErrorPage, ForbiddenResource
 from twisted.web.server import NOT_DONE_YET
 from twisted.web.static import File
 from twisted.web.template import Element, renderer, XMLFile, renderElement
+from twisted.web.error import UnsupportedMethod
 
 
 class DeviceListResource(Resource):
@@ -51,10 +50,14 @@ class DeferredLeafResource(Resource):
     do_render = True
     isLeaf = True
     
-    def __init__(self):
+    def __init__(self, allowMethods):
+        self._allowedMethods = allowMethods
         Resource.__init__(self)
 
-    def render_GET(self, request):
+    def render(self, request):
+        if request.method not in self._allowedMethods:
+            raise UnsupportedMethod(self._allowedMethods)
+
         # if it finishes prematurely then cancel the command
         finishedDeferred = request.notifyFinish()
         finishedDeferred.addErrback(self.dont_render)
@@ -79,7 +82,7 @@ class SendCommandResource(DeferredLeafResource):
     log = Logger(observer=printToConsole)
 
     def __init__(self, device, command):
-        DeferredLeafResource.__init__(self)
+        DeferredLeafResource.__init__(self, ('POST', ))
         self.device = device
         self.command = command
 
@@ -106,7 +109,7 @@ class GetUnsolicitedResource(DeferredLeafResource):
     log = Logger(observer=printToConsole)
 
     def __init__(self, device):
-        DeferredLeafResource.__init__(self)
+        DeferredLeafResource.__init__(self, ('GET',))
         self.device = device
 
     @inlineCallbacks
@@ -139,6 +142,9 @@ class DeviceResource(Resource):
 
     def getChild(self, name, request):
         if name == 'sendCommand':
+            if request.method == 'GET':
+                return File('hamjab/resources/help/sendCommand.html')
+
             args = ('fromClient', 'command')
             for arg in args:
                 result = ArgUtils._check_arg(arg, request.args)
@@ -146,14 +152,21 @@ class DeviceResource(Resource):
                     return result
                 
             (client, command) = ArgUtils._get_args(request, args)
-                        
+            
+            try:
+                other_args = dict([(x, request.args[x][0]) for x in request.args if x not in args])
+                command = command.format(**other_args)
+
+            except KeyError:
+                return ErrorPage(200, "Command Error", "Missing arguments for command")
+                       
             return SendCommandResource(self.device, command)
         
         elif name == 'frontEnd':
-            return File('etc/devices/{device}'.format(device=self.device.deviceId))
+            return File('hamjab/resources/devices/{device}'.format(device=self.device.deviceId))
 
         elif name == 'help':
-            return File('etc/help/')
+            return File('hamjab/resources/help/')
 
         elif name == 'getUnsolicited':
             return GetUnsolicitedResource(self.device)
@@ -174,7 +187,7 @@ class MacroResource(DeferredLeafResource):
     log = Logger(observer=printToConsole)
 
     def __init__(self, deviceServerFactory, macroName):
-        DeferredLeafResource.__init__(self)
+        DeferredLeafResource.__init__(self, ('POST',))
         self.deviceServerFactory = deviceServerFactory
         self.macroName = macroName
 
@@ -198,7 +211,7 @@ class MainPageRenderer(Element):
     A template renderer for the index page which displays a list of macros and a list of devices.
     """
     
-    loader = XMLFile(FilePath('etc/home/index.html'))
+    loader = XMLFile(FilePath('hamjab/resources/home/index.html'))
 
     def __init__(self, deviceServerFactory):
         self.deviceServerFactory = deviceServerFactory
@@ -214,11 +227,11 @@ class MainPageRenderer(Element):
         if not CommandServer.isDisabled:
             for device in sorted(self.deviceServerFactory.devices):
                 try:
-                    device_path = FilePath('etc/devices/{device}/device.json'.format(device=device))
+                    device_path = FilePath('hamjab/resources/devices/{device}/device.json'.format(device=device))
                     with device_path.open() as device_file:
                         device_data = json.load(device_file)
                         deviceName = device_data['name'] 
-                except Exception as e:
+                except Exception:
                     deviceName = device
                 yield tag.clone().fillSlots(deviceId = device, deviceName = deviceName)
                 
@@ -282,7 +295,7 @@ class CommandServer(Resource):
     def getChild(self, name, request):
         
         if name == "home":
-            templateParser = TemplateFile('etc/home/')
+            templateParser = TemplateFile('hamjab/resources/home/')
             templateParser.addRenderer('index', MainPageRenderer(self.deviceServerFactory))
             return templateParser
 

@@ -3,7 +3,7 @@ import operator
 
 from serial import PARITY_EVEN
 
-from devices.device_lib import SerialDevice
+from hamjab.devices.device_lib import SerialDevice
 
 class SonyException(Exception):
     pass

@@ -1,4 +1,4 @@
-from devices.device_lib import EthernetDevice
+from hamjab.devices.device_lib import EthernetDevice
 
 class Device(EthernetDevice):
     """

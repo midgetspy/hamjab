@@ -2,8 +2,8 @@ import argparse
 import json
 import os
 
-from lib import DeviceServerFactory, DEFAULT_DEVICE_SERVER_PORT
-from web import CommandServer
+from hamjab.lib import DeviceServerFactory, DEFAULT_DEVICE_SERVER_PORT
+from hamjab.web import CommandServer
 
 from control_logic import eventCallback, commandCallback
 

@@ -57,9 +57,9 @@ if build_type == 'server':
     
     server_files = [
         'server.py',
-        'lib.py',
-        'web.py',
-        'etc',
+        'hamjab/lib.py',
+        'hamjab/web.py',
+        'hamjab/resources',
     ]
 
     make_build(server_files)
@@ -68,8 +68,8 @@ elif build_type == 'client':
 
     client_files = [
         'deviceClient.py',
-        'lib.py',
-        'devices',
+        'hamjab/lib.py',
+        'hamjab/devices',
     ]
 
     make_build(client_files)
@@ -81,7 +81,7 @@ elif build_type == 'eg':
         ('eg_plugin/__init__.py', '__init__.py'),
     ]
     
-    for file_path in glob.glob('etc/devices/*/device.json'):
+    for file_path in glob.glob('hamjab/resources/devices/*/device.json'):
         with open(file_path) as file_obj:
             text = file_obj.read() 
             data = json.loads(text)
@@ -92,8 +92,8 @@ elif build_type == 'kodi':
     print 'Building Kodi addon...'
     
     kodi_files = [
-        ('kodi', 'service.xbmc.blah'),
-        ('lib.py', 'service.xbmc.blah/resources/lib/lib.py'),
+        ('kodi', 'service.xbmc.hamjab'),
+        ('hamjab/lib.py', 'service.xbmc.hamjab/resources/lib/lib.py'),
     ]
     
     make_build(kodi_files)

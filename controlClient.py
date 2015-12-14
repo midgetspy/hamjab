@@ -1,19 +1,20 @@
-import urllib2
+import urllib, urllib2
 
 class ControlClient(object):
     def __init__(self, hostname, port):
         self.url_root = "http://{host}:{port}/".format(host = hostname, port = port)
     
-    def _request_url(self, url_path):
+    def _request_url(self, url_path, data):
         url = self.url_root + url_path
-        page = urllib2.urlopen(url)
+        page = urllib2.urlopen(url, data=urllib.urlencode(data))
         return page.read()
     
     def sendCommand(self, deviceId, command):
-        url = "{deviceId}/sendCommand?fromClient=controlClient&command={command}".format(deviceId = deviceId, command = command)
-        return self._request_url(url)
+        url = "{deviceId}/sendCommand".format(deviceId=deviceId)
+        data = { 'fromClient': 'pythonControlClient', 'deviceId': deviceId, 'command': command }
+        return self._request_url(url, data)
 
     def sendMacro(self, macroName):
-        url = "macro?macroName={macroName}".format(macroName = macroName)
-        return self._request_url(url)
+        url = "macro"
+        return self._request_url(url, { 'macroName': macroName })
 

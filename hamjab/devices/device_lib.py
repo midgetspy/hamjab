@@ -1,4 +1,4 @@
-from lib import QueuedLineSender
+from hamjab.lib import QueuedLineSender
 
 from twisted.internet import reactor
 from twisted.internet.serialport import SerialPort    

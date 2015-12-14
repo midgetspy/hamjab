@@ -82,8 +82,9 @@ var handleSceneSelect = function(data) {
 };
 
 var sendCommand = function(command, success) {
-    var url = '../sendCommand?fromClient=webFrontEnd&toDevice=lutrongrx3000&command=' + command;
-    $.get(url, function(data) {
+    var url = '../sendCommand';
+    var data = { fromClient: 'webGui', command: command};
+    $.post(url, data, function(data) {
         if (success !== undefined)
             success(data);
     })

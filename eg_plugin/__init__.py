@@ -7,11 +7,11 @@ import wx
 import eg
 
 eg.RegisterPlugin(
-    name = "Control Client",
+    name = "HamJab Client",
     author = "Nic Wolfe",
-    version = "0.0.1",
+    version = "0.1.0",
     kind = "external",
-    description = "This plugin allows you to send control commands to a Control Server.",
+    description = "This plugin allows you to send control commands to a HamJab server.",
 )
 
 class Text:

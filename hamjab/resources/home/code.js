@@ -23,10 +23,11 @@ var sendCommand = function(macroName) {
 
     clearTimeout(hideMacroResultTimer);
 
-    var url = '../macro?macroName=' + macroName;
+    var url = '../macro';
+    var data = { macroName: macroName}
     handleMacroResult(macroName, 'LOADING');
     
-    $.get(url, function(data) {
+    $.post(url, data, function(data) {
         handleMacroResult(macroName, data);
     })
     .fail(function(data) {

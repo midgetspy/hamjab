@@ -18,7 +18,7 @@ msgstr ""
 "Plural-Forms: nplurals=2; plural=(n != 1);\n"
 
 msgctxt "#32000"
-msgid "BLAH"
+msgid "HamJab Client"
 msgstr ""
 
 msgctxt "#32010"

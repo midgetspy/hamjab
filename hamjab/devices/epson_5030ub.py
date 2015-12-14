@@ -1,6 +1,6 @@
 import os
 
-from devices.device_lib import SerialDevice
+from hamjab.devices.device_lib import SerialDevice
 
 class Device(SerialDevice):
     """
