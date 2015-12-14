@@ -145,13 +145,13 @@ class DeviceResource(Resource):
             if request.method == 'GET':
                 return File('hamjab/resources/help/sendCommand.html')
 
-            args = ('fromClient', 'command')
+            args = ('command',)
             for arg in args:
                 result = ArgUtils._check_arg(arg, request.args)
                 if result:
                     return result
                 
-            (client, command) = ArgUtils._get_args(request, args)
+            (command,) = ArgUtils._get_args(request, args)
             
             try:
                 other_args = dict([(x, request.args[x][0]) for x in request.args if x not in args])
